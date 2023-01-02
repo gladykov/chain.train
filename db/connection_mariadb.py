@@ -5,9 +5,10 @@ from snowflake.connector.pandas_tools import write_pandas
 from types import SimpleNamespace
 from tabulate import tabulate
 import json
+import mariadb
 
 
-class SnowflakeConnection(AbstractConnection):
+class MariaDBConnection(AbstractConnection):
 
     def __init__(self, name):
         self.connection = self.connection()
@@ -20,19 +21,18 @@ class SnowflakeConnection(AbstractConnection):
         return objectified_row
 
     def connection(self):
-        return connector.connect(
-            user="GLADYKOV",
-            account="ca29959.sa-east-1.aws",
-            password="Caparros1!",
-            database="SNOWFLAKE_SAMPLE_DATA",
-            role="ACCOUNTADMIN",
-            schema="TPCDS_SF100TCL",
-            warehouse="COMPUTE_WH",
-            # authenticator="externalbrowser",
-        )
+        return mariadb.connect(
+        user="root",
+        password="mysecret",
+        host="127.0.0.1",
+        port=3306,
+        database="information_schema"
+    )
 
     def query(self, query) -> object:
-        return self.connection.cursor(DictCursor).execute(query)
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+        return cursor
 
     def empty_result(self, result) -> bool:
         return result.rowcount() is None
