@@ -1,1 +1,2 @@
 tomli
+snowflake-connector-python[pandas]
