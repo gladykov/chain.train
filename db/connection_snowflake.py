@@ -12,13 +12,6 @@ class SnowflakeConnection(AbstractConnection):
     def __init__(self, name):
         self.connection = self.connection()
 
-    @staticmethod
-    def _objectify_row(row):
-        objectified_row = SimpleNamespace()
-        for key, value in row.items():
-            setattr(objectified_row, key, value)
-        return objectified_row
-
     def connection(self):
         return connector.connect(
             user="GLADYKOV",
@@ -59,8 +52,8 @@ class SnowflakeConnection(AbstractConnection):
         return [row["name"] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
 
     def columns(self, schema_name, table_name) -> dict:
-        query = f"SHOW COLUMNS IN {schema_name}.{table_name}"
-        return {col["column_name"]: json.loads(col["data_type"])["type"] for col in self.query(query).fetchall()}
+        query = f"DESCRIBE TABLE {schema_name}.{table_name}"
+        return {col["name"]: col["type"] for col in self.query(query).fetchall()}
 
     def table_exists(self, schema_name, table_name) -> bool:
         return table_name in self.tables(schema_name)
