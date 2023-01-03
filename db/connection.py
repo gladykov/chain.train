@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from types import SimpleNamespace
 
 class AbstractConnection(ABC):
     @abstractmethod
@@ -48,8 +48,16 @@ class AbstractConnection(ABC):
 
     @abstractmethod
     def save(self, schema_name, table_name, result, mode) -> None:
+        # mode: overwrite, append
         pass
 
     @abstractmethod
     def close(self) -> None:
         pass
+
+    @staticmethod
+    def _objectify_row(row):
+        objectified_row = SimpleNamespace()
+        for key, value in row.items():
+            setattr(objectified_row, key, value)
+        return objectified_row
