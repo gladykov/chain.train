@@ -1,15 +1,20 @@
 from db.connection import AbstractConnection
+from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
 
 class SparkConnection(AbstractConnection):
-    def __init__(self, name):
-        self.connection = self.connection(name)
+    def __init__(self, config):
+        self.connection = self.connection(config)
 
-    def connection(self, name):
-        return SparkSession.builder.appName(name).getOrCreate()
+    def connection(self, config):
+        spark_conf = SparkConf()
+        for key, value in config["spark"].items():
+            spark_conf.set(key, value)
 
-    def query(self, query):
+        return SparkSession.builder.config(conf=spark_conf).getOrCreate()
+
+    def query(self, query) -> object:
         return self.connection.sql(query)
 
     def empty_result(self, result) -> bool:
@@ -30,9 +35,6 @@ class SparkConnection(AbstractConnection):
     def tables(self, schema) -> list:
         return [table.name for table in self.connection.catalog.listTables(schema)]
 
-    def table_exists(self, schema, table) -> bool:
-        return any(existing_table.name == table for existing_table in self.connection.catalog.listTables(schema))
-
     def schema_exists(self, schema) -> bool:
         return any(database.name == schema for database in self.connection.catalog.listDatabases())
 
@@ -42,6 +44,6 @@ class SparkConnection(AbstractConnection):
     def save(self, schema, table, result, mode) -> None:
         result.write.mode(mode).saveAsTable(f"{schema}.{table}")
 
-    def close(self):
+    def close(self) -> None:
         if self.connection is not None:
             self.connection.stop()

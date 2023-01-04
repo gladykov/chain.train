@@ -2,25 +2,24 @@ from db.connection import AbstractConnection
 from snowflake import connector
 from snowflake.connector import DictCursor
 from snowflake.connector.pandas_tools import write_pandas
-from types import SimpleNamespace
 from tabulate import tabulate
-import json
 
 
 class SnowflakeConnection(AbstractConnection):
 
-    def __init__(self, name):
+    def __init__(self, config):
+        self.config = config["snowflake"]
         self.connection = self.connection()
 
     def connection(self):
         return connector.connect(
-            user="GLADYKOV",
-            account="ca29959.sa-east-1.aws",
-            password="Caparros1!",
-            database="SNOWFLAKE_SAMPLE_DATA",
-            role="ACCOUNTADMIN",
-            schema="TPCDS_SF100TCL",
-            warehouse="COMPUTE_WH",
+            user=self.config["user"],
+            account=self.config["account"],
+            password=self.config["password"],
+            database=self.config["database"],
+            role=self.config["role"],
+            schema=self.config["schema"],
+            warehouse=self.config["warehouse"],
             # authenticator="externalbrowser",
         )
 
@@ -55,9 +54,6 @@ class SnowflakeConnection(AbstractConnection):
         query = f"DESCRIBE TABLE {schema_name}.{table_name}"
         return {col["name"]: col["type"] for col in self.query(query).fetchall()}
 
-    def table_exists(self, schema_name, table_name) -> bool:
-        return table_name in self.tables(schema_name)
-
     def schema_exists(self, schema_name) -> bool:
         return schema_name in [row["name"] for row in self.query("SHOW DATABASES").fetchall()]
 
@@ -67,15 +63,16 @@ class SnowflakeConnection(AbstractConnection):
         database = "REGRESSION_DATABASE"
 
         connection = connector.connect(
-            user="GLADYKOV",
-            account="ca29959.sa-east-1.aws",
-            password="Caparros1!",
+            user=self.config["user"],
+            account=self.config["account"],
+            password=self.config["password"],
             database=database,
-            role="ACCOUNTADMIN",
+            role=self.config["role"],
             schema=schema_name,
-            warehouse="COMPUTE_WH",
+            warehouse=self.config["warehouse"],
             # authenticator="externalbrowser",
         )
+
 
         overwrite = mode == "overwrite"
         df = result.fetch_pandas_all()

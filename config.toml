@@ -1,2 +1,33 @@
 environments = ["qa", "production"]
-connection = "spark"
+
+# spark, snowflake, mariadb, mysql
+connector = "mysql"
+
+[spark]
+"spark.app.name" = "pytest-spark"
+"spark.default.parallelism" = 1
+"spark.dynamicAllocation.enabled" = false
+"spark.executor.cores" = 2
+"spark.executor.instances" = 1
+"spark.io.compression.codec" = "lz4"
+"spark.rdd.compress" = false
+"spark.sql.shuffle.partitions" = 1
+"spark.shuffle.compress" = false
+
+
+[snowflake]
+user = "GLADYKOV"
+account = "ca29959.sa-east-1.aws"
+password = "Caparros1!"
+database = "SNOWFLAKE_SAMPLE_DATA"
+role = "ACCOUNTADMIN"
+schema = "TPCDS_SF100TCL"
+warehouse = "COMPUTE_WH"
+
+
+[mariadb]
+user = "root"
+password = "mysecret"
+host = "127.0.0.1"
+port = 3306
+database = "menagerie"
