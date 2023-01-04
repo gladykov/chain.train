@@ -39,10 +39,6 @@ class AbstractConnection(ABC):
         pass
 
     @abstractmethod
-    def table_exists(self, schema_name, table_name) -> bool:
-        pass
-
-    @abstractmethod
     def schema_exists(self, schema_name) -> bool:
         pass
 

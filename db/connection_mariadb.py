@@ -1,29 +1,27 @@
 from db.connection import AbstractConnection
 from tabulate import tabulate
-import mariadb
 import pandas as pd
 from sqlalchemy import create_engine
-import mysql.connector
-import pymysql.cursors
+import pymysql
+
 
 class MariaDBConnection(AbstractConnection):
 
-    def __init__(self, name, flavor):
-        self.flavor = flavor
-        self.connection_details = {"user": "root", "password": "mysecret", "host": "127.0.0.1", "port":3306, "database":"menagerie"}
-        self.connection = self.connection(flavor)
+    def __init__(self, config):
+        assert config["connector"] in ["mysql", "mariadb"]
+        self.flavor = config["connector"]
+        self.config = config["mariadb"]
+        self.connection = self.connection()
 
-    def connection(self, flavor):
-        assert flavor in ["mysql", "mariadb"]
-        connection_flavor = mariadb if flavor == "mariadb" else mysql.connector
+    def connection(self):
 
         return pymysql.connect(
-        user=self.connection_details["user"],
-        password=self.connection_details["password"],
-        host=self.connection_details["host"],
-        port=self.connection_details["port"],
-        database=self.connection_details["database"]
-    )
+            user=self.config["user"],
+            password=self.config["password"],
+            host=self.config["host"],
+            port=self.config["port"],
+            # database=self.config["database"]
+        )
 
     def query(self, query) -> object:
         cursor = self.connection.cursor()
@@ -57,9 +55,6 @@ class MariaDBConnection(AbstractConnection):
         query = f"DESCRIBE {schema_name}.{table_name}"
         return {col["Field"]: col["Type"] for col in self.query(query).fetchall()}
 
-    def table_exists(self, schema_name, table_name) -> bool:
-        return table_name in self.tables(schema_name)
-
     def schema_exists(self, schema_name) -> bool:
         return schema_name in [row["Database"] for row in self.query("SHOW DATABASES").fetchall()]
 
@@ -67,15 +62,12 @@ class MariaDBConnection(AbstractConnection):
 
         overwrite = mode == "overwrite"
 
-        connection_flavor = "mariadb+pymysql" if self.flavor == "mariadb" else "mysql+pymysql"
-        connection = create_engine(f"{connection_flavor}://root:mysecret@127.0.0.1:3306/{schema_name}")
+        # Only PyMySQL worked both for MariaDB and MySQL, when writing data from one schema to another, with open coursor
+        # You can check if some bugs went away in the future
+        connection = create_engine(f"{self.flavor}+pymysql://{self.config['user']}:{self.config['password']}@{self.config['host']}:{self.config['port']}/{schema_name}")
 
-        # Put it all to a data frame
         df = pd.DataFrame(result.fetchall())
         df.columns = [i[0] for i in result.description]
-        # print([i[0] for i in result.description])
-
-        print(df.dtypes)
 
         if_exists = "replace" if overwrite else "append"
         df.to_sql(table_name, con=connection, if_exists=if_exists)
