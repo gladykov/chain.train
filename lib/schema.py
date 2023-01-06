@@ -10,3 +10,6 @@ class Schema:
             index for index, table in enumerate(self.tables) if table.name == name
         )
 
+    def table_names(self):
+        return [table.name for table in self.tables]
+

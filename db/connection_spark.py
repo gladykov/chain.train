@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 
 
 class SparkConnection(AbstractConnection):
-    def __init__(self, config):
+    def __init__(self, config, _):
         self.connection = self.connection(config)
 
     def connection(self, config):
