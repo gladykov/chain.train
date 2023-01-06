@@ -7,8 +7,9 @@ from tabulate import tabulate
 
 class SnowflakeConnection(AbstractConnection):
 
-    def __init__(self, config):
+    def __init__(self, config, schema_name):
         self.config = config["snowflake"]
+        self.schema_name = schema_name
         self.connection = self.connection()
 
     def connection(self):
@@ -18,7 +19,7 @@ class SnowflakeConnection(AbstractConnection):
             password=self.config["password"],
             database=self.config["database"],
             role=self.config["role"],
-            schema=self.config["schema"],
+            schema=self.schema_name,
             warehouse=self.config["warehouse"],
             # authenticator="externalbrowser",
         )

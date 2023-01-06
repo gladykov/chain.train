@@ -1,4 +1,4 @@
-from enum import StrEnum
+from strenum import StrEnum
 
 
 class Stats(StrEnum):
@@ -11,11 +11,3 @@ class Stats(StrEnum):
     def __iter__(cls):
         for value in cls._member_map_.items():
             yield value.value
-
-
-a = Stats
-for x in a:
-    print(x)
-# print(a._member_map_)
-# assert ["b" in Stats]
-# pass

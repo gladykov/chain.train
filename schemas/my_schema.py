@@ -1,10 +1,10 @@
 from lib.schema_definition import SchemaDefinition
 from lib.stats import Stats
 
-my_schema = SchemaDefinition("my_schema")
+schema_definition = SchemaDefinition("my_schema")
 
 (
-    my_schema.table("hello")
+    schema_definition.table("hello")
     .column("my_col", "int")
     .unique()
     .can_be_null()
@@ -18,12 +18,13 @@ my_schema = SchemaDefinition("my_schema")
 )
 
 (
-    my_schema.table("newest")
+    schema_definition.table("newest")
     .column("extra_colum", "great_type")
     .skip("fixme")
 )
-my_schema.close()
+schema_definition.close()
 
-my_schema.environment_difference("production", "hesllo", "my_col", [("unique", False)])
+schema_definition.environment_difference("production", "hello", "my_col", [("unique", False)])
+
 
 pass

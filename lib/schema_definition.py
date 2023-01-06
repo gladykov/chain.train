@@ -5,6 +5,7 @@ from lib.expected_result import ExpectedResult
 from lib.stats import Stats
 from lib import assets
 from types import SimpleNamespace
+from helpers.config import config
 
 
 class SchemaDefinition:
@@ -12,7 +13,7 @@ class SchemaDefinition:
         self._schema_handle = Schema(schema_name)
         self._table_handle = None
         self._column_handle = None
-        self.environments = assets.config()["environments"]
+        self.environments = config()["environments"]
         self.schemas_per_environment = []
         self.environment_differences = None
 
@@ -205,6 +206,9 @@ class SchemaDefinition:
             for index, schema in enumerate(self.schemas_per_environment)
             if schema.environment == environment
         )
+
+    def schema_for_environment(self, environment):
+        return self.schemas_per_environment[self._schema_for_environment_pointer(environment)].schema
 
     def environment_difference(self, environment, table, columns, difference):
         assert not self._schema_handle, "Close schema before adding difference"

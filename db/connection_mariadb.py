@@ -7,10 +7,11 @@ import pymysql
 
 class MariaDBConnection(AbstractConnection):
 
-    def __init__(self, config):
+    def __init__(self, config, schema_name):
         assert config["connector"] in ["mysql", "mariadb"]
         self.flavor = config["connector"]
         self.config = config["mariadb"]
+        self.schema_name = schema_name
         self.connection = self.connection()
 
     def connection(self):
@@ -20,7 +21,7 @@ class MariaDBConnection(AbstractConnection):
             password=self.config["password"],
             host=self.config["host"],
             port=self.config["port"],
-            # database=self.config["database"]
+            database=self.schema_name
         )
 
     def query(self, query) -> object:

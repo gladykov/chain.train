@@ -1,4 +1,4 @@
-from lib.assets import config
+from helpers.config import config
 
 
 config = config()
@@ -19,8 +19,8 @@ else:
 
 class Db(BaseClass):
 
-    def __init__(self):
-        super().__init__(config)
+    def __init__(self, schema_name):
+        super().__init__(config, schema_name)
 
     def drop_table(self, schema, table):
         self.query(f"DROP TABLE IF EXISTS {schema}.{table}")
@@ -30,8 +30,3 @@ class Db(BaseClass):
 
     def table_exists(self, schema_name, table_name):
         return table_name in self.tables(schema_name)
-
-a = Db()
-print(a.parse_result(a.query("SHOW DATABASES")))
-a.create_database("mysql_mine")
-print(a.parse_result(a.query("SHOW DATABASES")))
