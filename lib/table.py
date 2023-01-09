@@ -7,3 +7,9 @@ class Table:
     def column_pointer(self, name):
         return next(
             index for index, column in enumerate(self.columns) if column.name == name)
+
+    def column_names(self):
+        return [column.name for column in self.columns]
+
+    def column_types(self):
+        return [column.name for column in self.columns]

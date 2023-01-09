@@ -28,5 +28,17 @@ class Db(BaseClass):
     def create_database(self, schema):
         self.query(f"CREATE DATABASE IF NOT EXISTS {schema}")
 
+    def create_table(self, schema, table, columns):
+        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
+        query = (
+            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        )
+        self.query(query)
+
+    def insert(self, schema, table, values):
+        values_string = ", ".join([f"'{value}'" for value in values])
+        query = f"INSERT INTO {schema}.{table} VALUES ({values_string})"
+        self.query(query)
+
     def table_exists(self, schema_name, table_name):
         return table_name in self.tables(schema_name)
