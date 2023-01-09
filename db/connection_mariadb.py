@@ -21,12 +21,13 @@ class MariaDBConnection(AbstractConnection):
             password=self.config["password"],
             host=self.config["host"],
             port=self.config["port"],
-            database=self.schema_name
+            # database=self.schema_name
         )
 
     def query(self, query) -> object:
         cursor = self.connection.cursor()
         cursor.execute(query)
+        self.connection.commit()
         return cursor
 
     def empty_result(self, result) -> bool:
@@ -50,11 +51,15 @@ class MariaDBConnection(AbstractConnection):
         )
 
     def tables(self, schema_name) -> list:
-        return [row[f"Tables_in_{schema_name}"] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
+        for x in self.query(f"SHOW TABLES IN {schema_name}").fetchall():
+            print("lallalala")
+            print(x)
+
+        return [row[0] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
 
     def columns(self, schema_name, table_name) -> dict:
         query = f"DESCRIBE {schema_name}.{table_name}"
-        return {col["Field"]: col["Type"] for col in self.query(query).fetchall()}
+        return {col[0]: col[1] for col in self.query(query).fetchall()}
 
     def schema_exists(self, schema_name) -> bool:
         return schema_name in [row["Database"] for row in self.query("SHOW DATABASES").fetchall()]

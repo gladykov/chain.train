@@ -101,12 +101,13 @@ class SchemaDefinition:
     def skip(self, skip_reason):
         self._prevent_adding_properties_to_non_existent_entity()
 
+        assert skip_reason, "Skip reason cannot be empty"
+
         assert (
             not self._column_handle.skip
         ), "Skip property is already defined for this column"
 
-        self._column_handle.skip = True
-        self._column_handle.skip_reason = skip_reason
+        self._column_handle.skip = skip_reason
         return self
 
     def min_value(self, value):
