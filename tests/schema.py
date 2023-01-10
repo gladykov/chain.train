@@ -1,12 +1,8 @@
-import pytest
 from helpers.setup import setup as my_setup
 import importlib
-import logging
 
 
-
-
-class TestClass:
+class TestSchema:
 
     @classmethod
     def setup_class(cls):
@@ -17,22 +13,31 @@ class TestClass:
         cls.logger = setup.logger
         cls.db = setup.db
         cls.logger.info(f"Executing tests in env: {cls.env} for schema: {cls.schema_name}")
-        # Cache table names, not to fail tests if some table does not exist
+        # Cache table names, not to fail some tests if table does not exist
         cls.tables_in_db = sorted(cls.db.tables(cls.schema.name))
         # Cache schema from DB
         cls.schema_in_db = {}
         for table_in_db in cls.tables_in_db:
             cls.schema_in_db[table_in_db] = cls.db.columns(cls.schema_name, table_in_db)
 
+        cls.schema.print_skip_info(cls.logger)
+        cls.empty_tables = cls.empty_tables(cls)
+
+    def empty_tables(self):
+        query = "SELECT 'EMPTY' FROM {schema_name}.{table} LIMIT 1"
+        return [table for table in self.tables_in_db if self.db.empty_result(self.db.query(query.format(schema_name=self.schema_name, table=table)))]
+
     def should_skip(self, table, column):
         if table.name not in self.tables_in_db:
+            return True
+
+        if table.name in self.empty_tables:
             return True
 
         if column.name not in self.schema_in_db[table.name].keys():
             return True
 
         if column.skip:
-            self.logger.info(f"Skipping testing column {column.name} in {table.name} because of {column.skip}")
             return True
 
         return False
@@ -75,15 +80,24 @@ class TestClass:
 
         assert not failures, f"{failures}"
 
+    def test_table_empty(self):
+        assert not self.empty_tables, f"Empty tables in DB: {self.empty_tables}"
 
+    def test_column_null_empty(self):
+        query_null = "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {column_name} IS NOT NULL LIMIT 1"
+        query_empty = "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {column_name} <> '' LIMIT 1"
 
+        failures = []
+        for table in self.schema.tables:
+            for column in table.columns:
 
-    def test_2(self):
-        print("helou")
-        pass
+                if self.should_skip(table, column):
+                    print("skipping " + column.name)
+                    continue
 
+                if self.db.empty_result(self.db.query(query_null.format(column_name = column.name, schema_name = self.schema.name, table_name = table.name))):
+                    failures.append(f"Column {column.name} in {table.name} has only null values")
+                elif self.db.empty_result(self.db.query(query_empty.format(column_name = column.name, schema_name = self.schema.name, table_name = table.name))):
+                    failures.append(f"Column {column.name} in {table.name} has only empty strings")
 
-class NonTest:
-    def test_2(self):
-        print("tested2")
-        pass
+        assert not failures, f"Empty columns: {failures}"

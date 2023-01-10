@@ -13,3 +13,8 @@ class Table:
 
     def column_types(self):
         return [column.name for column in self.columns]
+
+    def print_skipped_columns(self, logger):
+        for column in self.columns:
+            if column.skip:
+                logger.info(f"Skipping testing column {column.name} in {self.name} because of {column.skip}")

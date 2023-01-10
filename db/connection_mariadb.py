@@ -51,10 +51,6 @@ class MariaDBConnection(AbstractConnection):
         )
 
     def tables(self, schema_name) -> list:
-        for x in self.query(f"SHOW TABLES IN {schema_name}").fetchall():
-            print("lallalala")
-            print(x)
-
         return [row[0] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
 
     def columns(self, schema_name, table_name) -> dict:
