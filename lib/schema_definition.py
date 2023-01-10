@@ -6,7 +6,7 @@ from lib.stats import Stats
 from lib import assets
 from types import SimpleNamespace
 from helpers.config import config
-
+from copy import deepcopy
 
 class SchemaDefinition:
     def __init__(self, schema_name):
@@ -196,7 +196,7 @@ class SchemaDefinition:
         self._save_table()
         for environment in self.environments:
             self.schemas_per_environment.append(
-                SimpleNamespace(environment=environment, schema=self._schema_handle)
+                SimpleNamespace(environment=environment, schema=deepcopy(self._schema_handle))
             )
 
         self._schema_handle = None

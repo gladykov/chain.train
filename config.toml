@@ -1,7 +1,7 @@
 environments = ["qa", "production"]
 
 # spark, snowflake, mariadb, mysql
-connector = "mariadb"
+connector = "mysql"
 
 [spark]
 "spark.app.name" = "pytest-spark"
@@ -29,5 +29,5 @@ warehouse = "COMPUTE_WH"
 user = "root"
 password = "mysecret"
 host = "127.0.0.1"
-port = 2222
+port = 3306
 database = "menagerie"

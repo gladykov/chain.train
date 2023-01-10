@@ -17,7 +17,7 @@ class GenerateData:
         self.db.create_database("test_schema")
         self.db.create_table(
             "test_schema",
-            "test_table",
+            "test_table_2",
             [("column_name", "text"), ("column_name_1", "text"), ("column_name_2", "int"), ("column_name_3", "bigint")]
         )
 

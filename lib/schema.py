@@ -13,3 +13,7 @@ class Schema:
     def table_names(self):
         return [table.name for table in self.tables]
 
+    def print_skip_info(self, logger):
+        for table in self.tables:
+            table.print_skipped_columns(logger)
+
