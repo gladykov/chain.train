@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from helpers.config import config
 from copy import deepcopy
 
+
 class SchemaDefinition:
     def __init__(self, schema_name):
         self._schema_handle = Schema(schema_name)
@@ -15,9 +16,9 @@ class SchemaDefinition:
         self._column_handle = None
         self.environments = config()["environments"]
         self.schemas_per_environment = []
-        self.environment_differences = None
 
     def table(self, table_name):
+        """Adds table to schema with given name"""
         self._save_column()
         self._save_table()
         assert not [
@@ -32,6 +33,7 @@ class SchemaDefinition:
         self._table_handle = None
 
     def column(self, column_name, column_type):
+        """Adds column to current table with given name and type"""
         self._save_column()
         assert self._table_handle, "Add table first, before adding column"
         assert not [
@@ -58,6 +60,7 @@ class SchemaDefinition:
         self._prevent_adding_properties_to_non_existent_column()
 
     def allowed_values(self, allowed_values):
+        """Adds list of allowed values to column"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert type(allowed_values) is list, "Allowed values must be a list"
@@ -70,6 +73,7 @@ class SchemaDefinition:
         return self
 
     def can_be_null(self):
+        """Defines column can contain null values"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert not self._column_handle.null, "You already defined column can be null"
@@ -78,6 +82,7 @@ class SchemaDefinition:
         return self
 
     def can_be_empty(self):
+        """Defines column can contain empty string values"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert not self._column_handle.empty, "You already defined column can be empty"
@@ -86,9 +91,11 @@ class SchemaDefinition:
         return self
 
     def can_be_empty_null(self):
+        """Shortcut method to define both EMPTY and NULL values for column"""
         return self.can_be_empty().can_be_null()
 
     def unique(self):
+        """Expect values in column to be unique"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert (
@@ -99,6 +106,7 @@ class SchemaDefinition:
         return self
 
     def skip(self, skip_reason):
+        """Skip testing of column. Provide a reason."""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert skip_reason, "Skip reason cannot be empty"
@@ -111,6 +119,7 @@ class SchemaDefinition:
         return self
 
     def min_value(self, value):
+        """Define minimal value for column"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert (
@@ -121,6 +130,7 @@ class SchemaDefinition:
         return self
 
     def max_value(self, value):
+        """Define maximal value for column"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert (
@@ -131,6 +141,7 @@ class SchemaDefinition:
         return self
 
     def expected_format(self, expected_format):
+        """Some string/text columns may contain data in one of expected formats."""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert expected_format in assets.EXPECTED_FORMATS
@@ -142,9 +153,10 @@ class SchemaDefinition:
         return self
 
     def collect_stat(self, stat):
+        """Write statistical data about column"""
         self._prevent_adding_properties_to_non_existent_entity()
 
-        assert stat in Stats, "Passed stat is not in stats object"
+        assert stat in Stats, "Passed stat is not valid stats object"
         assert (
             stat not in self._column_handle.collect_stats
         ), "You already added this stat to column definition"
@@ -153,12 +165,14 @@ class SchemaDefinition:
         return self
 
     def stat_always_grow(self):
+        """Expect value of stat to always increase"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         self._column_handle.stat_always_grow = True
         return self
 
     def expected_result(self, stat, **expected_result_per_environment):
+        """For tests, which are run after processing your workflow on fixed set of data, always expect those numbers"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert stat in Stats, "Given stat does not exists in Stats"
@@ -182,6 +196,7 @@ class SchemaDefinition:
         return self
 
     def unique_columns_group(self, unique_columns_group):
+        """Expect unique combinations of values in two or more columns"""
         self._prevent_adding_properties_to_non_existent_table()
         assert not self._column_handle, "You cannot add unique columns group to a column. Only to a table."
 
@@ -189,6 +204,7 @@ class SchemaDefinition:
         return self
 
     def close(self):
+        """Run after defining all tables and columns in schema"""
         assert (
             self._column_handle
         ), "You tried to close schema, without defining column for last table"
@@ -212,6 +228,15 @@ class SchemaDefinition:
         return self.schemas_per_environment[self._schema_for_environment_pointer(environment)].schema
 
     def environment_difference(self, environment, table, columns, difference):
+        """Add difference between original schema definition
+
+        Args:
+            environment - str; for which env you add it
+            table - str
+            columns - str or list; provide list of columns to add same difference across many
+            difference - list of tuples; ex. [("unique": False), ("skip": "Bad data in production")]
+            See column.py for possible attributes of column
+        """
         assert not self._schema_handle, "Close schema before adding difference"
         assert environment in self.environments, "Given environment does not exist"
         assert difference and isinstance(

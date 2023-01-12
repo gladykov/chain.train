@@ -1,6 +1,6 @@
 from helpers.setup import setup as my_setup
 import importlib
-
+from expected_format_validators import ExpectedFormatValidators
 
 class TestSchema:
 
@@ -92,7 +92,6 @@ class TestSchema:
             for column in table.columns:
 
                 if self.should_skip(table, column):
-                    print("skipping " + column.name)
                     continue
 
                 if self.db.empty_result(self.db.query(query_null.format(column_name = column.name, schema_name = self.schema.name, table_name = table.name))):
@@ -101,3 +100,112 @@ class TestSchema:
                     failures.append(f"Column {column.name} in {table.name} has only empty strings")
 
         assert not failures, f"Empty columns: {failures}"
+
+    def test_unique(self):
+        query = (
+            "SELECT {column_name}, COUNT({column_name}) AS duplicates FROM {schema_name}.{table_name} "
+            "GROUP BY {column_name} HAVING COUNT({column_name}) > 1 LIMIT 1"
+        )
+
+        failures = []
+        for table in self.schema.tables:
+            for column in table.columns:
+                if not column.unique or self.should_skip(table, column):
+                    continue
+
+                if not self.db.empty_result(self.db.query(query.format(column_name=column.name, schema_name=self.schema.name, table_name=table.name))):
+                    failures.append(f"Column {column.name} in table {table.name} has duplicated values")
+
+        assert not failures, f"Found duplicated data in unique columns {failures}"
+
+    def test_allowed_values(self):
+        query = "SELECT {column_name} FROM {schema_name}.{table_name} GROUP BY {column_name}"
+
+        failures = []
+
+        for table in self.schema.tables:
+            for column in table.columns:
+                if not column.allowed_values or self.should_skip(table, column):
+                    continue
+
+                expected = column.allowed_values
+                actual = [getattr(row, column.name) for row in self.db.rows(self.db.query(query.format(column_name=column.name, schema_name=self.schema.name, table_name=table.name)))]
+
+                expected.sort()
+                actual.sort()
+
+                if not sorted(expected) != sorted(actual):
+                    failures.append(f"In table {table.name} column {column.name} expected values: {expected}. Actual: {actual}")
+
+        assert not failures, f"Expected values differ from expected: {failures}"
+
+    def test_min_value(self):
+        query = "SELECT min({column_name}) AS min_value FROM {schema_name}.{table_name}"
+
+        failures = []
+
+        for table in self.schema.tables:
+            for column in table.columns:
+                if not column.min_value or self.should_skip(table, column):
+                    continue
+
+                expected = column.min_value
+                actual = self.db.row(self.db.query(query.format(column_name=column.name, schema_name=self.schema.name, table_name=table.name))).min_value
+
+                if expected < actual:
+                    failures.append(f"In table {table.name} column {column.name} expected min value: {expected}. Actual: {actual}")
+
+        assert not failures, f"Expected min values differ from expected: {failures}"
+
+    def test_max_value(self):
+        query = "SELECT max({column_name}) AS max_value FROM {schema_name}.{table_name}"
+
+        failures = []
+
+        for table in self.schema.tables:
+            for column in table.columns:
+                if not column.min_value or self.should_skip(table, column):
+                    continue
+
+                expected = column.min_value
+                actual = self.db.row(self.db.query(query.format(column_name=column.name, schema_name=self.schema.name, table_name=table.name))).max_value
+
+                if expected > actual:
+                    failures.append(f"In table {table.name} column {column.name} expected min value: {expected}. Actual: {actual}")
+
+        assert not failures, f"Expected max values differ from expected: {failures}"
+
+    def test_expected_format(self):
+        # Take one sample. Limit initial data pulled for shuffling to 1%. Take only not null and not empty strings
+        query = (
+            "SELECT {column_name} FROM {schema_name}.{table_name}"
+            "WHERE rand() <= 0.01 AND {column_name} IS NOT NULL AND {column_name} <> '' distribute by rand() sort by rand() limit 1"
+        )
+
+        failures = []
+
+        for table in self.schema.tables:
+            for column in table.columns:
+                if not column.expected_format or self.should_skip(table, column):
+                    continue
+
+                if not hasattr(ExpectedFormatValidators, column.expected_format):
+                    failures.append(f"In table {table.name} in column {column.name} unrecognized validator {column.expected_format}.")
+                    continue
+
+                try:
+                    result = getattr(self.db.row(self.db.query(query.format(
+                        column_name=column.name, schema_name=self.schema.name, table_name=table.name
+                    ))), column.name)
+                except IndexError as error:
+                    failures.append(f"In table {table.name} in column {column.name} couldn't test expected {column.expected_format}. "
+                                    f"In sampled data we didn't find enough valid values. "
+                                    f"Error: {error} "
+                                    )
+                    continue
+
+                validator = getattr(ExpectedFormatValidators, column.expected_format)
+                if not validator(result):
+                    failures.append(f"In table {table.name} in column {column.name} expected {column.expected_format}. Actual: {result}")
+
+        assert not failures, f"Some columns contain unexpected format: {failures}"
