@@ -1,7 +1,9 @@
 environments = ["qa", "production"]
 
 # spark, snowflake, mariadb, mysql
-connector = "mysql"
+connector = "mariadb"
+# How much od database to fetch, before sampling for single row
+sample_subset_percentage = 100
 
 [spark]
 "spark.app.name" = "pytest-spark"
@@ -29,5 +31,5 @@ warehouse = "COMPUTE_WH"
 user = "root"
 password = "mysecret"
 host = "127.0.0.1"
-port = 3306
+port = 2222
 database = "menagerie"

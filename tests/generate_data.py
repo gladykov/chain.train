@@ -1,7 +1,5 @@
-import pytest
 from helpers.setup import setup as my_setup
-import importlib
-import logging
+
 
 class GenerateData:
 
@@ -15,14 +13,30 @@ class GenerateData:
 
     def generate_data(self):
         self.db.create_database("test_schema")
+
+        self.db.drop_table("test_schema", "test_table_1")
+        self.db.drop_table("test_schema", "test_table_2")
+
         self.db.create_table(
             "test_schema",
-            "test_table_2",
+            "test_table_1",
             [("column_name", "text"), ("column_name_1", "text"), ("column_name_2", "int"), ("column_name_3", "bigint")]
         )
 
-        self.db.insert("test_schema", "test_table", ["row_1", "row_1_column_1", 12, 24])
-        self.db.insert("test_schema", "test_table", ["row_2", "row_2_column_1", 10, 12])
-        self.db.insert("test_schema", "test_table", ["row_3", "row_3_column_1", 3, 456])
+        self.db.insert("test_schema", "test_table_1", ("row_1", "row_1_column_1", 12, 24))
+        self.db.insert("test_schema", "test_table_1", ("row_2", "row_2_column_1", 10, 12))
+        self.db.insert("test_schema", "test_table_1", ("row_3", "row_3_column_1", 3, 456))
+
+        self.db.create_table(
+            "test_schema",
+            "test_table_2",
+            [("column_name", "text"), ("column_name_1", "text"), ("column_name_2", "int"), ("column_name_3", "bigint"), ("column_name_4", "text")]
+        )
+
+        self.db.insert("test_schema", "test_table_2", ("row_1", "row_1_column_1", 12, 24, None))
+        self.db.insert("test_schema", "test_table_2", ("row_2", "row_2_column_1", 10, 12, ""))
+        self.db.insert("test_schema", "test_table_2", ("row_3", "row_3_column_1", 3, 456, "arg"))
+        self.db.insert("test_schema", "test_table_2", ("row_3", "row_3_column_1", 3, 456, ""))
+
 
 GenerateData().generate_data()

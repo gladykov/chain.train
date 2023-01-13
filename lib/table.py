@@ -2,6 +2,7 @@ class Table:
     def __init__(self, name):
         self.name = name
         self.columns = []
+        self.row_limiter = ""
         self.unique_columns_group = []
 
     def column_pointer(self, name):
@@ -18,3 +19,9 @@ class Table:
         for column in self.columns:
             if column.skip:
                 logger.info(f"Skipping testing column {column.name} in {self.name} because of {column.skip}")
+
+    def get_row_limiter(self, suffix=""):
+        if not self.row_limiter:
+            return "WHERE"
+
+        return f"WHERE {self.row_limiter} {suffix}"

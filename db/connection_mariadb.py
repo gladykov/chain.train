@@ -3,13 +3,14 @@ from tabulate import tabulate
 import pandas as pd
 from sqlalchemy import create_engine
 import pymysql
+from pymysql.cursors import DictCursor
 
 
 class MariaDBConnection(AbstractConnection):
-
     def __init__(self, config, schema_name):
         assert config["connector"] in ["mysql", "mariadb"]
         self.flavor = config["connector"]
+        self.subset_percentage = config["sample_subset_percentage"]
         self.config = config["mariadb"]
         self.schema_name = schema_name
         self.connection = self.connection()
@@ -25,9 +26,8 @@ class MariaDBConnection(AbstractConnection):
         )
 
     def query(self, query) -> object:
-        cursor = self.connection.cursor()
+        cursor = self.connection.cursor(DictCursor)
         cursor.execute(query)
-        self.connection.commit()
         return cursor
 
     def empty_result(self, result) -> bool:
@@ -51,14 +51,45 @@ class MariaDBConnection(AbstractConnection):
         )
 
     def tables(self, schema_name) -> list:
-        return [row[0] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
+        return [
+            list(row.values())[0]
+            for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()
+        ]
 
     def columns(self, schema_name, table_name) -> dict:
         query = f"DESCRIBE {schema_name}.{table_name}"
-        return {col[0]: col[1] for col in self.query(query).fetchall()}
+        return {col["Field"]: col["Type"] for col in self.query(query).fetchall()}
 
     def schema_exists(self, schema_name) -> bool:
-        return schema_name in [row["Database"] for row in self.query("SHOW DATABASES").fetchall()]
+        return schema_name in [
+            row["Database"] for row in self.query("SHOW DATABASES").fetchall()
+        ]
+
+    def sample(self, schema_name, table_name, column_name, row_delimiter):
+        query = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' order by rand() limit 1"
+        )
+
+        subset_percentage = (1 / 100) * self.subset_percentage
+
+        result = self.query(
+            query.format(
+                schema_name=schema_name,
+                table_name=table_name,
+                column_name=column_name,
+                subset_percentage=subset_percentage,
+                row_delimiter=row_delimiter,
+            )
+        )
+
+        return self.row(result)
+
+    def insert(self, schema, table, values):
+        values_string = ("%s, " * len(values)).rstrip(", ")
+        query = f"INSERT INTO {schema}.{table} VALUES ({values_string})"
+        self.connection.cursor().execute(query, values)
+        self.connection.commit()
 
     def save(self, schema_name, table_name, result, mode) -> None:
 
@@ -66,7 +97,9 @@ class MariaDBConnection(AbstractConnection):
 
         # Only PyMySQL worked both for MariaDB and MySQL, when writing data from one schema to another, with open coursor
         # You can check if some bugs went away in the future
-        connection = create_engine(f"{self.flavor}+pymysql://{self.config['user']}:{self.config['password']}@{self.config['host']}:{self.config['port']}/{schema_name}")
+        connection = create_engine(
+            f"{self.flavor}+pymysql://{self.config['user']}:{self.config['password']}@{self.config['host']}:{self.config['port']}/{schema_name}"
+        )
 
         df = pd.DataFrame(result.fetchall())
         df.columns = [i[0] for i in result.description]
