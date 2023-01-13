@@ -35,10 +35,5 @@ class Db(BaseClass):
         )
         self.query(query)
 
-    def insert(self, schema, table, values):
-        values_string = ", ".join([f"'{value}'" for value in values])
-        query = f"INSERT INTO {schema}.{table} VALUES ({values_string})"
-        self.query(query)
-
     def table_exists(self, schema_name, table_name):
         return table_name in self.tables(schema_name)

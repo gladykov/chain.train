@@ -3,10 +3,10 @@ from lib.schema import Schema
 from lib.table import Table
 from lib.expected_result import ExpectedResult
 from lib.stats import Stats
-from lib import assets
 from types import SimpleNamespace
 from helpers.config import config
 from copy import deepcopy
+from tests.expected_format_validators import expected_formats
 
 
 class SchemaDefinition:
@@ -144,7 +144,7 @@ class SchemaDefinition:
         """Some string/text columns may contain data in one of expected formats."""
         self._prevent_adding_properties_to_non_existent_entity()
 
-        assert expected_format in assets.EXPECTED_FORMATS
+        assert expected_format in expected_formats()
         assert (
             not self._column_handle.expected_format
         ), "Expected formats property is already defined for this column"
@@ -201,6 +201,14 @@ class SchemaDefinition:
         assert not self._column_handle, "You cannot add unique columns group to a column. Only to a table."
 
         self._table_handle.unique_columns_group = unique_columns_group
+        return self
+
+    def row_limiter(self, row_limiter):
+        """For big tables add extra condition to limit amount of data pulled into test."""
+        self._prevent_adding_properties_to_non_existent_table()
+        assert not self._column_handle, "You cannot add row_limiter to a column. Only to a table."
+
+        self._table_handle.row_limiter = row_limiter
         return self
 
     def close(self):

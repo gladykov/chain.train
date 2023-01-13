@@ -102,3 +102,7 @@ class ExpectedFormatValidators:
         }
 
         return any(algorithm.match(result) for algorithm, _ in HASH_TYPE_REGEX.items())
+
+
+def expected_formats():
+    return [validator for validator in ExpectedFormatValidators.__dict__.keys() if not validator.startswith("__")]
