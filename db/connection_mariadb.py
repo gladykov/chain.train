@@ -85,10 +85,14 @@ class MariaDBConnection(AbstractConnection):
 
         return self.row(result)
 
-    def insert(self, schema, table, values):
-        values_string = ("%s, " * len(values)).rstrip(", ")
-        query = f"INSERT INTO {schema}.{table} VALUES ({values_string})"
-        self.connection.cursor().execute(query, values)
+    def insert(self, schema_name, table_name, values):
+        values = [values] if type(values) == tuple else values
+
+        for row in values:
+            values_string = ("%s, " * len(row)).rstrip(", ")
+            query = f"INSERT INTO {schema_name}.{table_name} VALUES ({values_string})"
+            self.connection.cursor().execute(query, row)
+
         self.connection.commit()
 
     def save(self, schema_name, table_name, result, mode) -> None:

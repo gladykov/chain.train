@@ -44,7 +44,13 @@ class AbstractConnection(ABC):
 
     @abstractmethod
     def save(self, schema_name, table_name, result, mode) -> None:
+        # pass results object
         # mode: overwrite, append
+        pass
+
+    @abstractmethod
+    def insert(self, schema_name, table_name, values) -> None:
+        # Values - expects tuple or list of tuples
         pass
 
     @abstractmethod
