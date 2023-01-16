@@ -219,7 +219,7 @@ class TestSchema:
                     )
                 ):
                     failures.append(
-                        f"In table: {table.name} column: {column.name} has duplicated values"
+                        f"In table: {table.name} column: {column.name}b has duplicated values"
                     )
 
         assert not failures, f"Found duplicated data in unique columns {failures}"
