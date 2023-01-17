@@ -1,7 +1,7 @@
 environments = ["qa", "production"]
 
 # spark, snowflake, mariadb, mysql
-connector = "mysql"
+connector = "snowflake"
 # How much od database to fetch, before sampling for single row
 sample_subset_percentage = 100
 
@@ -21,7 +21,7 @@ sample_subset_percentage = 100
 user = "GLADYKOV"
 account = "ca29959.sa-east-1.aws"
 password = "Caparros1!"
-database = "SNOWFLAKE_SAMPLE_DATA"
+database = "TEST_DATABASE"
 role = "ACCOUNTADMIN"
 schema = "TPCDS_SF100TCL"
 warehouse = "COMPUTE_WH"
@@ -31,5 +31,5 @@ warehouse = "COMPUTE_WH"
 user = "root"
 password = "mysecret"
 host = "127.0.0.1"
-port = 3306
+port = 2222
 database = "menagerie"

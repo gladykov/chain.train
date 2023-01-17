@@ -101,8 +101,10 @@ class TestSchema:
         assert not self.empty_tables, f"Empty tables in DB: {self.empty_tables}"
 
     def test_column_null_empty(self):
+
         query_null = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} {column_name} IS NOT NULL LIMIT 1"
-        query_empty = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} {column_name} <> '' LIMIT 1"
+        # To safely check other data types, cast them as string. This could be costly operation if there are many empty strings in column.
+        query_empty = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
 
         failures = []
         for table in self.schema.tables:
@@ -130,6 +132,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
+                            string_cast=self.db.string_cast,
                             row_limiter=table.get_row_limiter("AND"),
                         )
                     )
@@ -149,6 +152,7 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
+
                 if column.null or self.should_skip(table, column):
                     continue
 
@@ -171,12 +175,13 @@ class TestSchema:
     def test_empty(self):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} {column_name} = '' LIMIT 1"
+            "{row_limiter} cast({column_name} as {string_cast}) = '' LIMIT 1"
         )
 
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
+
                 if column.empty or self.should_skip(table, column):
                     continue
 
@@ -187,6 +192,7 @@ class TestSchema:
                             table_name=table.name,
                             column_name=column.name,
                             row_limiter=table.get_row_limiter("AND"),
+                            string_cast=self.db.string_cast
                         )
                     )
                 ):
@@ -205,6 +211,7 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
+
                 if not column.unique or self.should_skip(table, column):
                     continue
 
@@ -238,6 +245,7 @@ class TestSchema:
 
         for table in self.schema.tables:
             for column in table.columns:
+
                 if not column.allowed_values or self.should_skip(table, column):
                     continue
 
@@ -268,12 +276,14 @@ class TestSchema:
         assert not failures, f"Expected values differ from expected: {failures}"
 
     def test_min_value(self):
-        query = "SELECT min({column_name}) AS min_value FROM {schema_name}.{table_name} {row_limiter}"
+        # Beware. Snowflake knows better and converts column names to upper case
+        query = "SELECT min({column_name}) AS MIN_VALUE FROM {schema_name}.{table_name} {row_limiter}"
 
         failures = []
 
         for table in self.schema.tables:
             for column in table.columns:
+
                 if not column.min_value or self.should_skip(table, column):
                     continue
 
@@ -287,7 +297,7 @@ class TestSchema:
                             row_limiter=table.get_row_limiter() if table.row_limiter else "",
                         )
                     )
-                ).min_value
+                ).MIN_VALUE
 
                 if actual < expected:
                     failures.append(
@@ -297,12 +307,13 @@ class TestSchema:
         assert not failures, f"Expected min values differ from expected: {failures}"
 
     def test_max_value(self):
-        query = "SELECT max({column_name}) AS max_value FROM {schema_name}.{table_name} {row_limiter}"
+        query = "SELECT max({column_name}) AS MAX_VALUE FROM {schema_name}.{table_name} {row_limiter}"
 
         failures = []
 
         for table in self.schema.tables:
             for column in table.columns:
+
                 if not column.max_value or self.should_skip(table, column):
                     continue
 
@@ -316,7 +327,7 @@ class TestSchema:
                             row_limiter=table.get_row_limiter() if table.row_limiter else "",
                         )
                     )
-                ).max_value
+                ).MAX_VALUE
 
                 if actual > expected:
                     failures.append(
@@ -331,6 +342,7 @@ class TestSchema:
 
         for table in self.schema.tables:
             for column in table.columns:
+
                 if not column.expected_format or self.should_skip(table, column):
                     continue
 

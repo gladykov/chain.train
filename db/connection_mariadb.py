@@ -7,6 +7,9 @@ from pymysql.cursors import DictCursor
 
 
 class MariaDBConnection(AbstractConnection):
+
+    string_cast = "char"
+
     def __init__(self, config, schema_name):
         assert config["connector"] in ["mysql", "mariadb"]
         self.flavor = config["connector"]
@@ -110,6 +113,13 @@ class MariaDBConnection(AbstractConnection):
 
         if_exists = "replace" if overwrite else "append"
         df.to_sql(table_name, con=connection, if_exists=if_exists)
+
+    def create_table(self, schema, table, columns):
+        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
+        query = (
+            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        )
+        self.query(query)
 
     def close(self) -> None:
         self.connection.close()

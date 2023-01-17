@@ -25,15 +25,8 @@ class Db(BaseClass):
     def drop_table(self, schema, table):
         self.query(f"DROP TABLE IF EXISTS {schema}.{table}")
 
-    def create_database(self, schema):
-        self.query(f"CREATE DATABASE IF NOT EXISTS {schema}")
-
-    def create_table(self, schema, table, columns):
-        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
-        query = (
-            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
-        )
-        self.query(query)
+    def create_schema(self, schema):
+        self.query(f"CREATE SCHEMA IF NOT EXISTS {schema}")
 
     def table_exists(self, schema_name, table_name):
         return table_name in self.tables(schema_name)

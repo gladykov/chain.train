@@ -12,7 +12,9 @@ class GenerateData:
         self.logger.info(f"Executing tests in env: {self.env} for schema: {self.schema_name}")
 
     def generate_data(self):
-        self.db.create_database("test_schema")
+        self.db.create_database("test_database")
+
+        self.db.create_schema("test_schema")
 
         self.db.drop_table("test_schema", "test_table_1")
         self.db.drop_table("test_schema", "test_table_2")
