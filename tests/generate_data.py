@@ -12,33 +12,27 @@ class GenerateData:
         self.logger.info(f"Executing tests in env: {self.env} for schema: {self.schema_name}")
 
     def generate_data(self):
-        self.db.create_database("test_database")
+        # self.db.create_database("test_database")
 
-        self.db.create_schema("test_schema")
+        self.db.create_schema("TEST_SCHEMA")
 
-        self.db.drop_table("test_schema", "test_table_1")
-        self.db.drop_table("test_schema", "test_table_2")
-
-        self.db.create_table(
-            "test_schema",
-            "test_table_1",
-            [("column_name", "text"), ("column_name_1", "text"), ("column_name_2", "int"), ("column_name_3", "bigint")]
-        )
-
-        self.db.insert("test_schema", "test_table_1", ("row_1", "row_1_column_1", 12, 24))
-        self.db.insert("test_schema", "test_table_1", ("row_2", "row_2_column_1", 10, 12))
-        self.db.insert("test_schema", "test_table_1", ("row_3", "row_3_column_1", 3, 456))
+        self.db.drop_table("TEST_SCHEMA", "TEST_TABLE_1")
+        self.db.drop_table("TEST_SCHEMA", "TEST_TABLE_2")
 
         self.db.create_table(
-            "test_schema",
-            "test_table_2",
-            [("column_name", "text"), ("column_name_1", "text"), ("column_name_2", "int"), ("column_name_3", "bigint"), ("column_name_4", "text")]
+            "TEST_SCHEMA",
+            "TEST_TABLE_1",
+            [("COLUMN_NAME", "text"), ("COLUMN_NAME_1", "text"), ("COLUMN_NAME_2", "int"), ("COLUMN_NAME_3", "bigint")]
         )
 
-        self.db.insert("test_schema", "test_table_2", ("row_1", "row_1_column_1", 12, 24, None))
-        self.db.insert("test_schema", "test_table_2", ("row_2", "row_2_column_1", 10, 12, ""))
-        self.db.insert("test_schema", "test_table_2", ("row_3", "row_3_column_1", 3, 456, "arg"))
-        self.db.insert("test_schema", "test_table_2", ("row_3", "row_3_column_1", 3, 456, ""))
+        self.db.insert("TEST_SCHEMA", "TEST_TABLE_1", [("row_1", "row_1_column_1", 12, 24), ("row_2", "row_2_column_1", 10, 12), ("row_3", "row_3_column_1", 3, 456)])
 
+        self.db.create_table(
+            "TEST_SCHEMA",
+            "TEST_TABLE_2",
+            [("COLUMN_NAME", "text"), ("COLUMN_NAME_1", "text"), ("COLUMN_NAME_2", "int"), ("COLUMN_NAME_3", "bigint"), ("COLUMN_NAME_4", "text")]
+        )
+
+        self.db.insert("TEST_SCHEMA", "TEST_TABLE_2", [("row_1", "row_1_column_1", 12, 24, None), ("row_2", "row_2_column_1", 10, 12, ""), ("row_3", "row_3_column_1", 3, 456, "arg"),("row_3", "row_3_column_1", 3, 456, "")])
 
 GenerateData().generate_data()

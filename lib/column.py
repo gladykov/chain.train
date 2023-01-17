@@ -10,6 +10,6 @@ class Column:
         self.min_value = None
         self.max_value = None
         self.skip = False
-        self.collect_stats = []
+        self.gather_stats = []
         self.stat_always_grow = False
         self.expected_result = []

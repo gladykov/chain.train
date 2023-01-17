@@ -14,6 +14,7 @@ class SnowflakeConnection(AbstractConnection):
     string_cast = "string"
 
     def __init__(self, config, schema_name):
+        self.flavor = config["connector"]
         self.config = config["snowflake"]
         self.schema_name = schema_name
         self.connection = self.connection()
@@ -116,10 +117,10 @@ class SnowflakeConnection(AbstractConnection):
 
         self.connection.commit()
 
-    def create_table(self, schema, table, columns):
+    def create_table(self, schema_name, table_name, columns):
         columns_string = ", ".join([f"{column_name} {column_type}" for column_name, column_type in columns])
         query = (
-            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+            f"CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} ({columns_string})"
         )
         self.query(query)
 

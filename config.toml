@@ -1,7 +1,7 @@
 environments = ["qa", "production"]
 
 # spark, snowflake, mariadb, mysql
-connector = "snowflake"
+connector = "mariadb"
 # How much od database to fetch, before sampling for single row
 sample_subset_percentage = 100
 

@@ -158,10 +158,10 @@ class SchemaDefinition:
 
         assert stat in Stats, "Passed stat is not valid stats object"
         assert (
-            stat not in self._column_handle.collect_stats
+            stat not in self._column_handle.gather_stats
         ), "You already added this stat to column definition"
 
-        self._column_handle.collect_stats.append(stat)
+        self._column_handle.gather_stats.append(stat)
         return self
 
     def stat_always_grow(self):

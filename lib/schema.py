@@ -17,3 +17,12 @@ class Schema:
         for table in self.tables:
             table.print_skipped_columns(logger)
 
+    def tables_columns(self):
+        for table in self.tables:
+            for column in table.columns:
+                yield table, column
+
+    def tables_columns_with_stats(self):
+        return [(table, column) for table, column in self.tables_columns() if column.gather_stats]
+
+

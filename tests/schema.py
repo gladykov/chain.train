@@ -1,19 +1,18 @@
 from helpers.setup import setup as my_setup
-import importlib
 from expected_format_validators import ExpectedFormatValidators
 
 
 class TestSchema:
+
     @classmethod
     def setup_class(cls):
         setup = my_setup()
         cls.env = setup.parser.env
         cls.schema_name = setup.parser.schema_name
-        cls.schema = importlib.import_module(
-            f"schemas.{cls.schema_name}"
-        ).schema_definition.schema_for_environment(cls.env)
+        cls.schema = setup.schema
         cls.logger = setup.logger
         cls.db = setup.db
+
         cls.logger.info(
             f"Executing tests in env: {cls.env} for schema: {cls.schema_name}"
         )
@@ -100,7 +99,7 @@ class TestSchema:
     def test_table_empty(self):
         assert not self.empty_tables, f"Empty tables in DB: {self.empty_tables}"
 
-    def test_column_null_empty(self):
+    def test_column_is_null_empty(self):
 
         query_null = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} {column_name} IS NOT NULL LIMIT 1"
         # To safely check other data types, cast them as string. This could be costly operation if there are many empty strings in column.
@@ -143,7 +142,7 @@ class TestSchema:
 
         assert not failures, f"Empty columns: {failures}"
 
-    def test_null(self):
+    def test_contains_null(self):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
             "{row_limiter} {column_name} IS NULL LIMIT 1"
@@ -172,7 +171,7 @@ class TestSchema:
 
         assert not failures, f"Found null values in columns: {failures}"
 
-    def test_empty(self):
+    def test_contains_empty(self):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
             "{row_limiter} cast({column_name} as {string_cast}) = '' LIMIT 1"

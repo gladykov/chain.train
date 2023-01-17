@@ -1,7 +1,7 @@
 from lib.schema_definition import SchemaDefinition
 from lib.stats import Stats
 
-schema_definition = SchemaDefinition("test_schema")
+schema_definition = SchemaDefinition("TEST_SCHEMA")
 
 (
     schema_definition.table("TEST_TABLE_1")
@@ -9,10 +9,12 @@ schema_definition = SchemaDefinition("test_schema")
     .unique()
     .can_be_null()
     .collect_stat(Stats.DISTINCT)
+    .collect_stat(Stats.TOTAL_IN_RANGE)
     .expected_result(Stats.DISTINCT, qa=123, production=456)
     # .allowed_values(["asdsa"])
     .column("COLUMN_NAME_1", "text")
     .column("COLUMN_NAME_2", "int")
+    .collect_stat(Stats.TOTAL_IN_RANGE)
     .column("COLUMN_NAME_3", "bigint")
     .column("NOT_THERE", "bigint")
 )
