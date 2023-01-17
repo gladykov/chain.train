@@ -8,11 +8,13 @@ class SparkConnection(AbstractConnection):
     string_cast = "string"
 
     def __init__(self, config, _):
-        self.connection = self.connection(config)
+        self.flavor = config["connector"]
+        self.config = config["spark"]
+        self.connection = self.connection(self.config)
 
     def connection(self, config):
         spark_conf = SparkConf()
-        for key, value in config["spark"].items():
+        for key, value in self.config.items():
             spark_conf.set(key, value)
 
         return SparkSession.builder.config(conf=spark_conf).getOrCreate()

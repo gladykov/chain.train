@@ -22,11 +22,11 @@ class Db(BaseClass):
     def __init__(self, schema_name):
         super().__init__(config, schema_name)
 
-    def drop_table(self, schema, table):
-        self.query(f"DROP TABLE IF EXISTS {schema}.{table}")
+    def drop_table(self, schema_name, table_name):
+        self.query(f"DROP TABLE IF EXISTS {schema_name}.{table_name}")
 
-    def create_schema(self, schema):
-        self.query(f"CREATE SCHEMA IF NOT EXISTS {schema}")
+    def create_schema(self, schema_name):
+        self.query(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
 
     def table_exists(self, schema_name, table_name):
         return table_name in self.tables(schema_name)
