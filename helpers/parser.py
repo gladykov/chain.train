@@ -1,13 +1,23 @@
-import argparse
+import sys
+from types import SimpleNamespace
 
 
 def parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--env", help="Environment", required=True)
-    parser.add_argument("--schema_name", help="Schema to test", required=True)
-    parser.add_argument("--log_level", help="Log level", required=False, default="info")
+    # argparse was supposed to be nice. It is not, when used with Pytest. parse_known_args is useless
 
-    # Add pytest specific arguments below this line
-    parser.add_argument("-s", help="Log level", required=False, default="info")
+    args = ["--env", "--schema_name"]
+    recognized_args = []
+    for arg in sys.argv:
+        if arg.split("=")[0] in args:
+            recognized_args.append(arg)
 
-    return parser.parse_args()
+    assert len(args) == len(recognized_args), "Provide args"
+
+    parsed_args = SimpleNamespace()
+
+    for recognized_arg in recognized_args:
+        name, value = recognized_arg.split("=")
+        name = name.lstrip("--")
+        setattr(parsed_args, name, value)
+
+    return parsed_args

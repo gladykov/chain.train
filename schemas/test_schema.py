@@ -4,35 +4,35 @@ from lib.stats import Stats
 schema_definition = SchemaDefinition("test_schema")
 
 (
-    schema_definition.table("test_table_1")
-    .column("column_name", "texta")
+    schema_definition.table("TEST_TABLE_1")
+    .column("COLUMN_NAME", "text")
     .unique()
     .can_be_null()
     .collect_stat(Stats.DISTINCT)
     .expected_result(Stats.DISTINCT, qa=123, production=456)
     # .allowed_values(["asdsa"])
-    .column("column_name_1", "text")
-    .column("column_name_2", "int")
-    .column("column_name_3", "bigint")
-    .column("not_there", "bigint")
+    .column("COLUMN_NAME_1", "text")
+    .column("COLUMN_NAME_2", "int")
+    .column("COLUMN_NAME_3", "bigint")
+    .column("NOT_THERE", "bigint")
 )
 
 (
-    schema_definition.table("test_table_2") #.row_limiter("column_name_3 > 200")
-    .column("column_name", "text")
+    schema_definition.table("TEST_TABLE_2") #.row_limiter("column_name_3 > 200")
+    .column("COLUMN_NAME", "text")
     .unique()
     .can_be_null()
     .collect_stat(Stats.DISTINCT)
     .expected_result(Stats.DISTINCT, qa=123, production=456)
     .allowed_values(["row_1", "row_2", "row_3"])
-    .column("column_name_1", "text").unique()
-    .column("column_name_2", "int").min_value(5)
-    .column("column_name_3", "bigint").max_value(200)
-    .column("column_name_4", "text").allowed_values(["arg", ""])
+    .column("COLUMN_NAME_1", "text").unique()
+    .column("COLUMN_NAME_2", "int").min_value(5)
+    .column("COLUMN_NAME_3", "bigint").max_value(200)
+    .column("COLUMN_NAME_4", "text").allowed_values(["arg", "", None])
 )
 
 
 schema_definition.close()
 
-schema_definition.environment_difference("production", "test_table_1", "column_name_3", [("skip", "Bad test")])
+schema_definition.environment_difference("production", "TEST_TABLE_1", "COLUMN_NAME_3", [("skip", "Bad test")])
 pass

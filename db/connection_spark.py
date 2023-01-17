@@ -4,6 +4,9 @@ from pyspark.sql import SparkSession
 
 
 class SparkConnection(AbstractConnection):
+
+    string_cast = "string"
+
     def __init__(self, config, _):
         self.connection = self.connection(config)
 
@@ -70,6 +73,12 @@ class SparkConnection(AbstractConnection):
 
         return self.row(result)
 
+    def create_table(self, schema, table, columns):
+        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
+        query = (
+            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        )
+        self.query(query)
 
     def close(self) -> None:
         if self.connection is not None:

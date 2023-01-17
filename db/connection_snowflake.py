@@ -4,8 +4,14 @@ from snowflake.connector import DictCursor
 from snowflake.connector.pandas_tools import write_pandas
 from tabulate import tabulate
 
+import logging
+
+logging.getLogger('snowflake.connector').setLevel(logging.WARNING)
+
 
 class SnowflakeConnection(AbstractConnection):
+
+    string_cast = "string"
 
     def __init__(self, config, schema_name):
         self.config = config["snowflake"]
@@ -13,6 +19,7 @@ class SnowflakeConnection(AbstractConnection):
         self.connection = self.connection()
 
     def connection(self):
+
         return connector.connect(
             user=self.config["user"],
             account=self.config["account"],
@@ -28,10 +35,10 @@ class SnowflakeConnection(AbstractConnection):
         return self.connection.cursor(DictCursor).execute(query)
 
     def empty_result(self, result) -> bool:
-        return result.rowcount() is None
+        return result.rowcount == 0
 
     def count(self, result) -> int:
-        count = result.rowcount()
+        count = result.rowcount
         return count if count else 0
 
     def row(self, result) -> object:
@@ -74,11 +81,51 @@ class SnowflakeConnection(AbstractConnection):
             # authenticator="externalbrowser",
         )
 
-
         overwrite = mode == "overwrite"
         df = result.fetch_pandas_all()
         write_pandas(connection, df, table_name=table_name, database=database, schema=schema_name, auto_create_table=True, overwrite=overwrite)
         connection.close()
+
+    def sample(self, schema_name, table_name, column_name, row_delimiter):
+        query = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' order by rand() limit 1"
+        )
+
+        subset_percentage = (1 / 100) * self.subset_percentage
+
+        result = self.query(
+            query.format(
+                schema_name=schema_name,
+                table_name=table_name,
+                column_name=column_name,
+                subset_percentage=subset_percentage,
+                row_delimiter=row_delimiter,
+            )
+        )
+
+        return self.row(result)
+
+    def insert(self, schema_name, table_name, values):
+        values = [values] if type(values) == tuple else values
+
+        for row in values:
+            values_string = ("%s, " * len(row)).rstrip(", ")
+            query = f"INSERT INTO {schema_name}.{table_name} VALUES ({values_string})"
+            self.connection.cursor().execute(query, row)
+
+        self.connection.commit()
+
+    def create_table(self, schema, table, columns):
+        columns_string = ", ".join([f"{column_name} {column_type}" for column_name, column_type in columns])
+        query = (
+            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        )
+        self.query(query)
+
+    def create_database(self, database):
+        # For Snowflake Database is higher entity and contains many schemas
+        self.query(f"CREATE DATABASE IF NOT EXISTS {database}")
 
     def close(self) -> None:
         self.connection.close()
