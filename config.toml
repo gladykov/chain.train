@@ -1,7 +1,9 @@
+# Define your own
 environments = ["qa", "production"]
 
 # spark, snowflake, mariadb, mysql
 connector = "mysql"
+
 # How much od database to fetch, before sampling for single row
 sample_subset_percentage = 100
 
@@ -23,7 +25,7 @@ account = "ca29959.sa-east-1.aws"
 password = "Caparros1!"
 database = "TEST_DATABASE"
 role = "ACCOUNTADMIN"
-schema = "TPCDS_SF100TCL"
+schema = "TPCDS_SF100TCL"  # Not so important. Your user should be able to switch between schemas.
 warehouse = "COMPUTE_WH"
 
 # Used both for Maria and Mysql
@@ -32,4 +34,3 @@ user = "root"
 password = "mysecret"
 host = "127.0.0.1"
 port = 3306
-database = "menagerie"

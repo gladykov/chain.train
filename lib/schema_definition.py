@@ -73,7 +73,7 @@ class SchemaDefinition:
         return self
 
     def can_be_null(self):
-        """Defines column can contain null values"""
+        """Column can contain null values"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert not self._column_handle.null, "You already defined column can be null"
@@ -82,7 +82,7 @@ class SchemaDefinition:
         return self
 
     def can_be_empty(self):
-        """Defines column can contain empty string values"""
+        """Column can contain empty string values"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert not self._column_handle.empty, "You already defined column can be empty"
@@ -91,7 +91,7 @@ class SchemaDefinition:
         return self
 
     def can_be_empty_null(self):
-        """Shortcut method to define both EMPTY and NULL values for column"""
+        """Shortcut method; column may contain both EMPTY and NULL"""
         return self.can_be_empty().can_be_null()
 
     def unique(self):
@@ -106,7 +106,7 @@ class SchemaDefinition:
         return self
 
     def skip(self, skip_reason):
-        """Skip testing of column. Provide a reason."""
+        """Skip testing of column. Provide a reason. Reason will be printed when test runs"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert skip_reason, "Skip reason cannot be empty"
@@ -141,7 +141,7 @@ class SchemaDefinition:
         return self
 
     def expected_format(self, expected_format):
-        """Some string/text columns may contain data in one of expected formats."""
+        """Some string/text columns may contain string data, which may be parsed to one of expected formats."""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert expected_format in expected_formats()
@@ -153,7 +153,10 @@ class SchemaDefinition:
         return self
 
     def collect_stat(self, stat):
-        """Write statistical data about column"""
+        """Gather statistical data about column.
+        Pass Stats object from stats.py ex .collect_stat(Stat.DISTINCT).
+        Can be called more than once for single column, to add more than one stat.
+        """
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert stat in Stats, "Passed stat is not valid stats object"
@@ -204,7 +207,7 @@ class SchemaDefinition:
         return self
 
     def row_limiter(self, row_limiter):
-        """For big tables add extra condition to limit amount of data pulled into test."""
+        """For big tables add extra condition to limit amount of data pulled into test. Useful also when you run ETL periodically and want to test rows produced during latest run."""
         self._prevent_adding_properties_to_non_existent_table()
         assert not self._column_handle, "You cannot add row_limiter to a column. Only to a table."
 

@@ -25,7 +25,6 @@ class MariaDBConnection(AbstractConnection):
             password=self.config["password"],
             host=self.config["host"],
             port=self.config["port"],
-            # database=self.schema_name
         )
 
     def query(self, query) -> object:
