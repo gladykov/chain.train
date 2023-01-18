@@ -171,26 +171,26 @@ class SchemaDefinition:
         self._column_handle.stat_always_grow = True
         return self
 
-    def expected_result(self, stat, **expected_result_per_environment):
+    def expected_result(self, stat, **expected_count_per_environment):
         """For tests, which are run after processing your workflow on fixed set of data, always expect those numbers"""
         self._prevent_adding_properties_to_non_existent_entity()
 
-        assert stat in Stats, "Given stat does not exists in Stats"
+        assert stat in [Stats.DISTINCT, Stats.TOTAL], "Expected results are checked against distinct or total count"
 
         assert all(
-            environment in expected_result_per_environment.keys()
+            environment in expected_count_per_environment.keys()
             for environment in self.environments
         ), "Define expected result for every environment from config file"
 
-        for expected_stat_value in expected_result_per_environment.values():
-            assert isinstance(expected_stat_value, int), "Passed stat is not an integer"
+        for expected_count in expected_count_per_environment.values():
+            assert isinstance(expected_count, int), "Passed stat is not an integer"
 
-        for expected_stat in self._column_handle.expected_result:
+        for expected_stat in self._column_handle.expected_results:
             assert expected_stat.stat != stat, "You already added this stat to column"
 
-        for environment, expected_result in expected_result_per_environment.items():
-            self._column_handle.expected_result.append(
-                ExpectedResult(stat, environment, expected_result)
+        for environment, expected_count in expected_count_per_environment.items():
+            self._column_handle.expected_results.append(
+                ExpectedResult(stat, environment, expected_count)
             )
 
         return self

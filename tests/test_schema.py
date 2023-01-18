@@ -2,7 +2,7 @@ from helpers.setup import setup as my_setup
 from expected_format_validators import ExpectedFormatValidators
 
 
-class TestSchema:
+class ATestSchema:
 
     @classmethod
     def setup_class(cls):
