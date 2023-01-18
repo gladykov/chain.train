@@ -4,14 +4,16 @@ from lib.stats import Stats
 
 class TestRegression:
 
-    @classmethod
-    def setup_class(cls):
+    def setup_class(self):
         setup = my_setup()
-        cls.env = setup.parser.env
-        cls.schema_name = setup.schema.regression_schema_name
-        cls.schema = setup.schema
-        cls.logger = setup.logger
-        cls.db = setup.db
+        self.env = setup.parser.env
+        self.schema_name = setup.schema.regression_schema_name
+        self.schema = setup.schema
+        self.logger = setup.logger
+        self.db = setup.db
+
+    def teardown_class(self):
+        self.db.close()
 
     def test_expected_results(self):
         # When you process fixed set of data, you expect same counts

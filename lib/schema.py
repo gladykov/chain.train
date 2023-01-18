@@ -3,7 +3,7 @@ class Schema:
         self.name = name
         self.tables = []
         self.statistics_schema_name = f"{name}_statistics"
-        self.regression_schema_name = f"{name}_REGRESSION"
+        self.regression_schema_name = f"{name}_regression"
 
     def table_pointer(self, name):
         return next(

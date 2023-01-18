@@ -2,29 +2,31 @@ from helpers.setup import setup as my_setup
 from expected_format_validators import ExpectedFormatValidators
 
 
-class ATestSchema:
+class TestSchema:
 
-    @classmethod
-    def setup_class(cls):
+    def setup_class(self):
         setup = my_setup()
-        cls.env = setup.parser.env
-        cls.schema_name = setup.parser.schema_name
-        cls.schema = setup.schema
-        cls.logger = setup.logger
-        cls.db = setup.db
+        self.env = setup.parser.env
+        self.schema_name = setup.parser.schema_name
+        self.schema = setup.schema
+        self.logger = setup.logger
+        self.db = setup.db
 
-        cls.logger.info(
-            f"Executing tests in env: {cls.env} for schema: {cls.schema_name}"
+        self.logger.info(
+            f"Executing tests in env: {self.env} for schema: {self.schema_name}"
         )
         # Cache table names, not to fail some tests if table does not exist
-        cls.tables_in_db = sorted(cls.db.tables(cls.schema.name))
+        self.tables_in_db = sorted(self.db.tables(self.schema.name))
         # Cache schema from DB
-        cls.schema_in_db = {}
-        for table_in_db in cls.tables_in_db:
-            cls.schema_in_db[table_in_db] = cls.db.columns(cls.schema_name, table_in_db)
+        self.schema_in_db = {}
+        for table_in_db in self.tables_in_db:
+            self.schema_in_db[table_in_db] = self.db.columns(self.schema_name, table_in_db)
 
-        cls.schema.print_skip_info(cls.logger)
-        cls.empty_tables = cls.empty_tables(cls)
+        self.schema.print_skip_info(self.logger)
+        self.empty_tables = self.empty_tables(self)
+
+    def teardown_class(self):
+        self.db.close()
 
     def empty_tables(self):
         query = "SELECT 'EMPTY' FROM {schema_name}.{table} LIMIT 1"
