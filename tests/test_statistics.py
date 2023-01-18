@@ -11,24 +11,28 @@ ACCEPTED_STD_DEV_DIFFERENCE = 3
 
 class TestStatistics:
 
-    @classmethod
-    def setup_class(cls):
+    def setup_class(self):
         setup = my_setup()
-        cls.env = setup.parser.env
-        cls.schema_name = setup.parser.schema_name
-        cls.schema = setup.schema
-        cls.logger = setup.logger
-        cls.db = setup.db
+        self.env = setup.parser.env
+        self.schema_name = setup.parser.schema_name
+        self.schema = setup.schema
+        self.logger = setup.logger
+        self.db = setup.db
         query = "SELECT * FROM {schema_name}.{statistics_table_name}"
-        cls.statistics_data = cls.db.rows(cls.db.query(query.format(
-            schema_name = cls.schema.statistics_schema_name,
+        self.statistics_data = self.db.rows(self.db.query(query.format(
+            schema_name=self.schema.statistics_schema_name,
             statistics_table_name=STATISTICS_TABLE_NAME
         )))
         # Convert to DataFrame for filtering on multiple columns
-        cls.df = DataFrame([vars(row) for row in cls.statistics_data])
+        self.df = DataFrame([vars(row) for row in self.statistics_data])
+        self.df.columns = self.df.columns.str.upper()  # Thank you Snowflake for forcing UPPERCASE
+
+
+    def teardown_class(self):
+        self.db.close()
 
     def filtered_stats(self, schema_name, table_name, column_name, stat_type):
-        query = 'schema_name == "{schema_name}" & table_name == "{table_name}" & column_name == "{column_name}" & stat_type == "{stat_type}"'
+        query = 'SCHEMA_NAME == "{schema_name}" & TABLE_NAME == "{table_name}" & COLUMN_NAME == "{column_name}" & STAT_TYPE == "{stat_type}"'
         return self.df.query(
             query.format(
                 schema_name=schema_name,
@@ -36,7 +40,7 @@ class TestStatistics:
                 column_name=column_name,
                 stat_type=stat_type
             )
-        ).sort_values(by=['measure_date'], ascending=False)[["value"]]
+        ).sort_values(by=['MEASURE_DATE'], ascending=False)[["VALUE"]]
 
     @staticmethod
     def enough_data_points(df):
@@ -44,7 +48,7 @@ class TestStatistics:
 
     @staticmethod
     def current_past_values(df):
-        return df.iloc[0].value, list(df.iloc[1:DATA_POINTS_TO_LOOK_AT].value)
+        return df.iloc[0].VALUE, list(df.iloc[1:DATA_POINTS_TO_LOOK_AT].VALUE)
 
     def test_standard_deviation(self):
 
