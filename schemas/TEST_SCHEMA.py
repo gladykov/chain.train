@@ -4,19 +4,19 @@ from lib.stats import Stats
 schema_definition = SchemaDefinition("TEST_SCHEMA")
 
 (
-    schema_definition.table("TEST_TABLE_1").row_limiter("COLUMN_NAME_2 > 3")
+    schema_definition.table("TEST_TABLE_1")
+    .row_limiter("COLUMN_NAME_2 BETWEEN 2010-05-21 AND 2010-06-21")
     .column("COLUMN_NAME", "text")
     .unique()
-    .can_be_null()
-    .collect_stat(Stats.DISTINCT)
-    .collect_stat(Stats.TOTAL_IN_RANGE)
+    .collect_stat(Stats.TOTAL_IN_RANGE).collect_stat(Stats.DISTINCT)
     .expected_result(Stats.DISTINCT, qa=3, production=456)
-    # .allowed_values(["asdsa"])
+    .expected_format("guid")
     .column("COLUMN_NAME_1", "text")
+    .allowed_values(["duck", "dog", "cat"])
     .column("COLUMN_NAME_2", "int")
-    .collect_stat(Stats.DISTINCT_IN_RANGE)
+    .can_be_null()
     .column("COLUMN_NAME_3", "bigint")
-    .column("NOT_THERE", "bigint")
+    .skip("JIRA-1234 Bad data")
 )
 
 (
