@@ -1,4 +1,4 @@
-# Chain Train
+# chain.train
 
 ETL & database testing framework for big data. With connectors for Spark, Snowflake, MySQL/MariaDB.
 
@@ -43,7 +43,7 @@ schema_definition.environment_difference("production", "TEST_TABLE_1", "COLUMN_N
 
 ## Overview
 
-chain.train is a testing framework for big data, to validate schemas,  gather statistical data about produced output tables, run statistical tests, and also run tests on fixed set's of data, for regression testing.
+chain.train is a testing framework for big data, to validate schemas, gather statistical data about produced output tables, run statistical tests, and also run tests on fixed set's of data, for regression testing.
 Created with reusability in mind and possible improvements in the future. It takes into account existence of different environments like qa, staging, production and differences which may exists between them.
 
 Core of framework is schema definition, which defines all tables, columns, their properties, types of statistical data to be gathered and expected counts for regression tests.
@@ -52,11 +52,13 @@ Framework contains row limiters and samplers - when used will limit amount of da
 
 ## Environments
 
-Are defined in `config.toml` . You can provide arbitrary number of then and arbitrary names.
+Are defined in `config.toml` . You can provide arbitrary number and names of the,.
 
 ## Creating schema
 
-You can define your schema based on any environment. After you will `close()` your schema definition, you can add environment specific differences. Create new schema in `schemas` dir.
+Create new schema in `schemas` dir. Name of file must be equal to name of schema.
+
+You can define your schema based on any environment. After you will `close()` your schema definition, you can add environment specific differences.
 Note: Snowflake loves to return column names and types in UPPERCASE, even if you define them in lowercase. 
 
 ### table
@@ -215,7 +217,7 @@ Add difference between original schema definition
   
 ## Running schema tests
 
-This will validate table names, column names and types, null and empty values, allowed values, expected format. For full list of tests see `tests/test_schema.py`
+This will validate table names, column names and types, null and empty values, allowed values, expected formats, etc.. For full list of tests see `tests/test_schema.py`
 
 ```python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_schema.py```
 
@@ -223,7 +225,7 @@ This will validate table names, column names and types, null and empty values, a
 
 ### Gather stats
 
-First you need to gather some statistical data about your tables, but running:
+First you need to gather some statistical data about your tables, but running few times (define how much in `test_statistics.py`):
 
 `python -m tests.gather_statistics --schema_name=TEST_SCHEMA --env=qa`
 
@@ -247,6 +249,8 @@ This will execute set of tests comparing counts. Implemented tests should be tre
 * test_standard_deviation
 * test_stat_always_grow
 * test_latest_run_is_not_zero
+
+If there are not enough defined data points for comparison, it will also pass.
 
 ## Running regression tests
 
@@ -278,11 +282,25 @@ This way you can select based on periods, partitions, etc. Or you attach another
 ## About connectors
 
 Connectors have all read and write operations implemented, but you should not be tempted to reuse write functionality to drive your ETLs - they are nowhere efficient for big data operations. Just good enough to write small number of rows. 
-Where tested with MySQL, MariaDB, Spark 2.x and Snowflake.
+Where tested with MySQL, MariaDB, Spark 2.x and Snowflake with Python 3.9
 
 Q: Why you return custom objects instead of Pandas?
 A: Good point. I thought about it too late. Something to improve in the future.
 
+Q: I want to store secrets as env variables / fetch from secret manager
+A: Please generate `config.toml` on the fly and remove it after. If you know some nice abstract method to manage them, please let me know.
+
 ## Bugs and contributions
 
 Please tell me about bugs, ideas and please make contributions. There are many use cases which I didn't thought of or didn't implement yet. Goal here is to be universal out-of-the box experience.
+Main assumption to follow:
+- do as many checks as possible when defining schema - running tests takes time, so we want to catch anything before executing actual queries
+
+## I have a big project, can you help me setup this stuff?
+
+We can talk. Drop me a message at gladykov @ most popular email domain from google
+
+## Code
+
+Black, Isort, Bugbear - all will kindly yell at you from Github Actions
+
