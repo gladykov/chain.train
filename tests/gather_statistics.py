@@ -2,9 +2,10 @@ from helpers.setup import setup as my_setup
 from lib.stats import Stats
 from datetime import datetime
 
-class GatherStatistics:
+STATISTICS_TABLE_NAME = "statistics"
 
-    STATISTICS_TABLE_NAME = "statistics"
+
+class GatherStatistics:
 
     def __init__(self):
         setup = my_setup()
@@ -18,10 +19,8 @@ class GatherStatistics:
         string_types = {"mysql": "text", "mariadb": "text", "snowflake":"text", "spark": "string", }
         string_type = string_types[self.db.flavor]
 
-        print(self.schema.statistics_schema_name)
-
         self.db.create_schema(self.schema.statistics_schema_name)
-        self.db.create_table(self.schema.statistics_schema_name, self.STATISTICS_TABLE_NAME, [
+        self.db.create_table(self.schema.statistics_schema_name, STATISTICS_TABLE_NAME, [
             ("schema_name", f"{string_type}"), ("table_name", f"{string_type}"), ("column_name", f"{string_type}"),
             ("stat_type", f"{string_type}"), ("value", "bigint"), ("measure_date", "timestamp")
         ])
@@ -50,7 +49,7 @@ class GatherStatistics:
                 )))
                 gathered_statistics.append((self.schema_name, table.name, column.name, str(stat), value, datetime.now()))
 
-        self.db.insert(self.schema.statistics_schema_name, self.STATISTICS_TABLE_NAME, gathered_statistics)
+        self.db.insert(self.schema.statistics_schema_name, STATISTICS_TABLE_NAME, gathered_statistics)
 
     def main(self):
         self.prepare()
