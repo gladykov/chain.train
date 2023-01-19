@@ -46,7 +46,7 @@ class AbstractConnection(ABC):
     @abstractmethod
     def save(self, schema_name, table_name, result, mode) -> None:
         """pass results object
-           mode: overwrite, append
+        mode: overwrite, append
         """
 
     @abstractmethod
