@@ -39,8 +39,10 @@ class TestStatistics:
         self.db.close()
 
     def filtered_stats(self, schema_name, table_name, column_name, stat_type):
-        query = ('SCHEMA_NAME == "{schema_name}" & TABLE_NAME == "{table_name}" '
-                 '& COLUMN_NAME == "{column_name}" & STAT_TYPE == "{stat_type}"')
+        query = (
+            'SCHEMA_NAME == "{schema_name}" & TABLE_NAME == "{table_name}" '
+            '& COLUMN_NAME == "{column_name}" & STAT_TYPE == "{stat_type}"'
+        )
         return self.df.query(
             query.format(
                 schema_name=schema_name,

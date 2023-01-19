@@ -40,8 +40,10 @@ class GatherStatistics:
         )
 
     def gather_statistics(self):
-        query = ("SELECT {distinct} {column_name} "
-                 "FROM {schema_name}.{table_name} {row_limiter}")
+        query = (
+            "SELECT {distinct} {column_name} "
+            "FROM {schema_name}.{table_name} {row_limiter}"
+        )
 
         gathered_statistics = []
 

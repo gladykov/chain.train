@@ -179,7 +179,7 @@ class SchemaDefinition:
 
     def expected_result(self, stat, **expected_count_per_environment):
         """For tests, which are run after processing your workflow on fixed set of data,
-         always expect those numbers"""
+        always expect those numbers"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert stat in [

@@ -89,8 +89,10 @@ class SparkConnection(AbstractConnection):
         columns_string = ", ".join(
             [f"`{column_name}` {column_type}" for column_name, column_type in columns]
         )
-        query = (f"CREATE TABLE IF NOT EXISTS "
-                 f"{schema_name}.{table_name} ({columns_string})")
+        query = (
+            f"CREATE TABLE IF NOT EXISTS "
+            f"{schema_name}.{table_name} ({columns_string})"
+        )
         self.query(query)
 
     def close(self) -> None:
