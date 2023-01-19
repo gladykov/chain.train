@@ -1,6 +1,6 @@
 import re
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 
 
 # TODO: Make configurable per project / schema (?)
@@ -9,7 +9,7 @@ DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 YEAR_FORMAT = "%Y"
 
 
-class ExpectedFormatValidators:
+class ExpectedFormatValidators:  # noqa PIE798
     @staticmethod
     def date_time(result):
         try:

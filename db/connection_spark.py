@@ -57,7 +57,7 @@ class SparkConnection(AbstractConnection):
         result.write.mode(mode).format("hive").saveAsTable(f"{schema}.{table}")
 
     def insert(self, schema_name, table_name, values):
-        values = [values] if type(values) == tuple else values
+        values = [values] if isinstance(values, tuple) else values
         schema = self.connection.sql(
             f"SELECT * FROM {schema_name}.{table_name} LIMIT 1"
         ).schema
@@ -67,7 +67,8 @@ class SparkConnection(AbstractConnection):
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' distribute by rand() sort by rand() limit 1"
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
+            "{column_name} <> '' distribute by rand() sort by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
@@ -84,11 +85,12 @@ class SparkConnection(AbstractConnection):
 
         return self.row(result)
 
-    def create_table(self, schema, table, columns):
+    def create_table(self, schema_name, table_name, columns):
         columns_string = ", ".join(
             [f"`{column_name}` {column_type}" for column_name, column_type in columns]
         )
-        query = f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        query = (f"CREATE TABLE IF NOT EXISTS "
+                 f"{schema_name}.{table_name} ({columns_string})")
         self.query(query)
 
     def close(self) -> None:

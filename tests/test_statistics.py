@@ -39,7 +39,8 @@ class TestStatistics:
         self.db.close()
 
     def filtered_stats(self, schema_name, table_name, column_name, stat_type):
-        query = 'SCHEMA_NAME == "{schema_name}" & TABLE_NAME == "{table_name}" & COLUMN_NAME == "{column_name}" & STAT_TYPE == "{stat_type}"'
+        query = ('SCHEMA_NAME == "{schema_name}" & TABLE_NAME == "{table_name}" '
+                 '& COLUMN_NAME == "{column_name}" & STAT_TYPE == "{stat_type}"')
         return self.df.query(
             query.format(
                 schema_name=schema_name,
@@ -77,7 +78,8 @@ class TestStatistics:
 
                 if current < expected:
                     failures.append(
-                        f"In table: {table.name} in column: {column.name} for stat {stat} expected std: {expected}. Actual: {current}"
+                        f"In table: {table.name} in column: {column.name} "
+                        f"for stat {stat} expected std: {expected}. Actual: {current}"
                     )
 
     def test_stat_always_grow(self):
@@ -106,7 +108,9 @@ class TestStatistics:
 
                 if current < previous:
                     failures.append(
-                        f"In table: {table.name} in column: {column.name} for stat {stat} expected increase. Previous: {previous}. Actual: {current}"
+                        f"In table: {table.name} in column: {column.name} "
+                        f"for stat {stat} expected increase. "
+                        f"Previous: {previous}. Actual: {current}"
                     )
 
     def test_latest_run_is_not_zero(self):
@@ -123,12 +127,14 @@ class TestStatistics:
 
                 if len(df.index) == 0:
                     raise ValueError(
-                        f"You got 0 recorded stats for {self.schema_name} {table.name} {column.name} {stat}"
+                        f"You got 0 recorded stats for {self.schema_name} {table.name} "
+                        f"{column.name} {stat}"
                     )
 
                 current, _ = self.current_past_values(df)
 
                 if current == 0:
                     failures.append(
-                        f"In table: {table.name} in column: {column.name} for latest stat {stat} got 0."
+                        f"In table: {table.name} in column: {column.name} "
+                        f"for latest stat {stat} got 0."
                     )

@@ -7,7 +7,8 @@ class Stats(StrEnum):
     TOTAL_IN_RANGE = (
         "total_in_range"  # Counts all with extra WHERE condition set by row_limiter()
     )
-    DISTINCT_IN_RANGE = "distinct_in_range"  # Counts distinct with extra WHERE condition set by row_limiter()
+    # Counts distinct with extra WHERE condition set by row_limiter()
+    DISTINCT_IN_RANGE = "distinct_in_range"
 
     @classmethod
     def __iter__(cls):

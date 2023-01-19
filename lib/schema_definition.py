@@ -64,7 +64,7 @@ class SchemaDefinition:
         """Adds list of allowed values to column"""
         self._prevent_adding_properties_to_non_existent_entity()
 
-        assert type(allowed_values) is list, "Allowed values must be a list"
+        assert isinstance(allowed_values, list), "Allowed values must be a list"
         assert allowed_values, "Allowed values cannot be empty"
         assert (
             not self._column_handle.allowed_values
@@ -107,7 +107,8 @@ class SchemaDefinition:
         return self
 
     def skip(self, skip_reason):
-        """Skip testing of column. Provide a reason. Reason will be printed when test runs"""
+        """Skip testing of column. Provide a reason.
+        Reason will be printed when test runs"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert skip_reason, "Skip reason cannot be empty"
@@ -142,7 +143,8 @@ class SchemaDefinition:
         return self
 
     def expected_format(self, expected_format):
-        """Some string/text columns may contain string data, which may be parsed to one of expected formats."""
+        """Some string/text columns may contain string data,
+        which may be parsed to one of expected formats."""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert expected_format in expected_formats()
@@ -176,7 +178,8 @@ class SchemaDefinition:
         return self
 
     def expected_result(self, stat, **expected_count_per_environment):
-        """For tests, which are run after processing your workflow on fixed set of data, always expect those numbers"""
+        """For tests, which are run after processing your workflow on fixed set of data,
+         always expect those numbers"""
         self._prevent_adding_properties_to_non_existent_entity()
 
         assert stat in [
@@ -213,7 +216,9 @@ class SchemaDefinition:
         return self
 
     def row_limiter(self, row_limiter):
-        """For big tables add extra condition to limit amount of data pulled into test. Useful also when you run ETL periodically and want to test rows produced during latest run."""
+        """For big tables add extra condition to limit amount of data pulled into test.
+        Useful also when you run ETL periodically and want to test rows produced
+        during latest run."""
         self._prevent_adding_properties_to_non_existent_table()
         assert (
             not self._column_handle
@@ -256,8 +261,8 @@ class SchemaDefinition:
         Args:
             environment - str; for which env you add it
             table - str
-            columns - str or list; provide list of columns to add same difference across many
-            difference - list of tuples; ex. [("unique": False), ("skip": "Bad data in production")]
+            columns - str or list; list of columns to add same difference across many
+            difference - list of tuples; ex. [("unique": False), ("skip": "Bad data")]
             See column.py for possible attributes of column
         """
         assert not self._schema_handle, "Close schema before adding difference"

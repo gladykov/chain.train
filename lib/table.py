@@ -20,7 +20,8 @@ class Table:
         for column in self.columns:
             if column.skip:
                 logger.info(
-                    f"Skipping testing column {column.name} in {self.name} because of {column.skip}"
+                    f"Skipping testing column {column.name} in {self.name} because of "
+                    f"{column.skip}"
                 )
 
     def get_row_limiter(self, suffix=""):

@@ -35,9 +35,11 @@ class TestRegression:
                     )
                 )
 
-                if not count == expected_result.expected_count:
+                if count != expected_result.expected_count:
                     failures.append(
-                        f"In table: {table.name} in column: {column.name} expected count for stat {expected_result.stat} is: {expected_result.expected_count}. Actual: {count}"
+                        f"In table: {table.name} in column: {column.name} "
+                        f"expected count for stat {expected_result.stat} is: "
+                        f"{expected_result.expected_count}. Actual: {count}"
                     )
 
         assert not failures, failures

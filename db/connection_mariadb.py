@@ -71,7 +71,8 @@ class MariaDBConnection(AbstractConnection):
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' order by rand() limit 1"
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
+            "{column_name} <> '' order by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
@@ -89,7 +90,7 @@ class MariaDBConnection(AbstractConnection):
         return self.row(result)
 
     def insert(self, schema_name, table_name, values):
-        values = [values] if type(values) == tuple else values
+        values = [values] if isinstance(values, tuple) else values
 
         for row in values:
             values_string = ("%s, " * len(row)).rstrip(", ")
@@ -102,10 +103,12 @@ class MariaDBConnection(AbstractConnection):
 
         overwrite = mode == "overwrite"
 
-        # Only PyMySQL worked both for MariaDB and MySQL, when writing data from one schema to another, with open coursor
+        # Only PyMySQL worked both for MariaDB and MySQL,
+        # when writing data from one schema to another, with open coursor
         # You can check if some bugs went away in the future
         connection = create_engine(
-            f"{self.flavor}+pymysql://{self.config['user']}:{self.config['password']}@{self.config['host']}:{self.config['port']}/{schema_name}"
+            f"{self.flavor}+pymysql://{self.config['user']}:{self.config['password']}"
+            f"@{self.config['host']}:{self.config['port']}/{schema_name}"
         )
 
         df = pd.DataFrame(result.fetchall())
@@ -114,11 +117,12 @@ class MariaDBConnection(AbstractConnection):
         if_exists = "replace" if overwrite else "append"
         df.to_sql(table_name, con=connection, if_exists=if_exists)
 
-    def create_table(self, schema, table, columns):
+    def create_table(self, schema_name, table_name, columns):
         columns_string = ", ".join(
             [f"`{column_name}` {column_type}" for column_name, column_type in columns]
         )
-        query = f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        query = (f"CREATE TABLE IF NOT EXISTS "
+                 f"{schema_name}.{table_name} ({columns_string})")
         self.query(query)
 
     def close(self) -> None:

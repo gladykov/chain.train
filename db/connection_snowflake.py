@@ -75,7 +75,8 @@ class SnowflakeConnection(AbstractConnection):
 
     def save(self, schema_name, table_name, result, mode) -> None:
 
-        # When doing write operation to different database / schema you may need new connection
+        # When doing write operation to different database / schema
+        # you may need new connection
         database = "REGRESSION_DATABASE"
 
         connection = connector.connect(
@@ -105,7 +106,8 @@ class SnowflakeConnection(AbstractConnection):
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' order by rand() limit 1"
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
+            "{column_name} <> '' order by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
@@ -123,7 +125,7 @@ class SnowflakeConnection(AbstractConnection):
         return self.row(result)
 
     def insert(self, schema_name, table_name, values):
-        values = [values] if type(values) == tuple else values
+        values = [values] if isinstance(values, tuple) else values
 
         for row in values:
             values_string = ("%s, " * len(row)).rstrip(", ")
