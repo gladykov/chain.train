@@ -105,13 +105,16 @@ class TestSchema:
 
     def test_column_is_null_empty(self):
 
-        query_null = ("SELECT {column_name} FROM {schema_name}.{table_name} "
-                      "{row_limiter} {column_name} IS NOT NULL LIMIT 1")
+        query_null = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} "
+            "{row_limiter} {column_name} IS NOT NULL LIMIT 1"
+        )
         # To safely check other data types, cast them as string.
         # This could be costly operation if there are many empty strings in column.
         query_empty = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1")
+            "{row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
+        )
 
         failures = []
         for table in self.schema.tables:
@@ -254,8 +257,10 @@ class TestSchema:
                 None,
             )
 
-        query = ("SELECT {column_name} FROM {schema_name}.{table_name} "
-                 "{row_limiter} GROUP BY {column_name}")
+        query = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} "
+            "{row_limiter} GROUP BY {column_name}"
+        )
 
         failures = []
 
@@ -297,8 +302,10 @@ class TestSchema:
 
     def test_min_value(self):
         # Beware. Snowflake knows better and converts column names to upper case
-        query = ("SELECT min({column_name}) AS MIN_VALUE "
-                 "FROM {schema_name}.{table_name} {row_limiter}")
+        query = (
+            "SELECT min({column_name}) AS MIN_VALUE "
+            "FROM {schema_name}.{table_name} {row_limiter}"
+        )
 
         failures = []
 
@@ -331,8 +338,10 @@ class TestSchema:
         assert not failures, f"Expected min values differ from expected: {failures}"
 
     def test_max_value(self):
-        query = ("SELECT max({column_name}) AS MAX_VALUE "
-                 "FROM {schema_name}.{table_name} {row_limiter}")
+        query = (
+            "SELECT max({column_name}) AS MAX_VALUE "
+            "FROM {schema_name}.{table_name} {row_limiter}"
+        )
 
         failures = []
 
