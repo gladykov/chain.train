@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from types import SimpleNamespace
 
+
 class AbstractConnection(ABC):
     @abstractmethod
     def connection(self, name):
@@ -44,29 +45,28 @@ class AbstractConnection(ABC):
 
     @abstractmethod
     def save(self, schema_name, table_name, result, mode) -> None:
-        # pass results object
-        # mode: overwrite, append
-        pass
+        """pass results object
+        mode: overwrite, append
+        """
 
     @abstractmethod
     def insert(self, schema_name, table_name, values) -> None:
-        # Values - expects tuple or list of tuples
-        pass
+        """Values - expects tuple or list of tuples"""
 
     @abstractmethod
     def close(self) -> None:
         pass
 
     @abstractmethod
-    def create_table(self) -> None:
+    def create_table(self, schema_name, table_name, columns) -> None:
         pass
 
     @abstractmethod
     def sample(self, schema_name, table_name, column_name, row_limiter) -> object:
-        """Take one sample. Limit initial data pulled for shuffling to 1%. Take only not null and not empty strings.
+        """Take one sample. Limit initial data pulled for shuffling to x%.
+        Take only not null and not empty strings.
         Sample methods differ depending on engine used
         """
-        pass
 
     @staticmethod
     def _objectify_row(row):

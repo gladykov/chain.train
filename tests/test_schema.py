@@ -1,9 +1,9 @@
-from helpers.setup import setup as my_setup
 from expected_format_validators import ExpectedFormatValidators
+
+from helpers.setup import setup as my_setup
 
 
 class TestSchema:
-
     def setup_class(self):
         setup = my_setup()
         self.env = setup.parser.env
@@ -20,7 +20,9 @@ class TestSchema:
         # Cache schema from DB
         self.schema_in_db = {}
         for table_in_db in self.tables_in_db:
-            self.schema_in_db[table_in_db] = self.db.columns(self.schema_name, table_in_db)
+            self.schema_in_db[table_in_db] = self.db.columns(
+                self.schema_name, table_in_db
+            )
 
         self.schema.print_skip_info(self.logger)
         self.empty_tables = self.empty_tables(self)
@@ -48,10 +50,7 @@ class TestSchema:
         if column.name not in self.schema_in_db[table.name].keys():
             return True
 
-        if column.skip:
-            return True
-
-        return False
+        return column.skip
 
     def test_table_names(self):
         """Check if all tables are in DB"""
@@ -69,7 +68,8 @@ class TestSchema:
                 not_in_db = list(set(expected) - set(actual))
                 not_in_definition = list(set(actual) - set(expected))
                 failures.append(
-                    f"For table: {table.name} missing columns in definition: {not_in_definition} and missing in DB: {not_in_db}"
+                    f"For table: {table.name} missing columns in definition: "
+                    f"{not_in_definition} and missing in DB: {not_in_db}"
                 )
 
         assert not failures, f"{failures}"
@@ -84,7 +84,8 @@ class TestSchema:
                     continue
 
                 expected = column.type
-                # Removing brackets and characters in brackets, so 'int(12)' will become 'int`
+                # Removing brackets and characters in brackets
+                # 'int(12)' will become 'int`
                 actual = next(
                     col_type
                     for name, col_type in self.schema_in_db[table.name].items()
@@ -93,7 +94,8 @@ class TestSchema:
 
                 if expected != actual:
                     failures.append(
-                        f"In table: {table.name} column: {column.name} expected type {expected}. Actual: {actual}"
+                        f"In table: {table.name} column: "
+                        f"{column.name} expected type {expected}. Actual: {actual}"
                     )
 
         assert not failures, f"{failures}"
@@ -103,9 +105,16 @@ class TestSchema:
 
     def test_column_is_null_empty(self):
 
-        query_null = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} {column_name} IS NOT NULL LIMIT 1"
-        # To safely check other data types, cast them as string. This could be costly operation if there are many empty strings in column.
-        query_empty = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
+        query_null = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} "
+            "{row_limiter} {column_name} IS NOT NULL LIMIT 1"
+        )
+        # To safely check other data types, cast them as string.
+        # This could be costly operation if there are many empty strings in column.
+        query_empty = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} "
+            "{row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
+        )
 
         failures = []
         for table in self.schema.tables:
@@ -125,7 +134,8 @@ class TestSchema:
                     )
                 ):
                     failures.append(
-                        f"In table: {table.name} column: {column.name} has only null values"
+                        f"In table: {table.name} column: {column.name} "
+                        f"has only null values"
                     )
                 elif self.db.empty_result(
                     self.db.query(
@@ -139,7 +149,8 @@ class TestSchema:
                     )
                 ):
                     failures.append(
-                        f"In table: {table.name} column: {column.name} has only empty strings"
+                        f"In table: {table.name} column: {column.name} "
+                        f"has only empty strings"
                     )
 
         assert not failures, f"Empty columns: {failures}"
@@ -193,7 +204,7 @@ class TestSchema:
                             table_name=table.name,
                             column_name=column.name,
                             row_limiter=table.get_row_limiter("AND"),
-                            string_cast=self.db.string_cast
+                            string_cast=self.db.string_cast,
                         )
                     )
                 ):
@@ -205,7 +216,8 @@ class TestSchema:
 
     def test_unique(self):
         query = (
-            "SELECT {column_name}, COUNT({column_name}) AS duplicates FROM {schema_name}.{table_name} {row_limiter} "
+            "SELECT {column_name}, COUNT({column_name}) AS duplicates "
+            "FROM {schema_name}.{table_name} {row_limiter} "
             "GROUP BY {column_name} HAVING COUNT({column_name}) > 1 LIMIT 1"
         )
 
@@ -222,25 +234,33 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ):
                     failures.append(
-                        f"In table: {table.name} column: {column.name}b has duplicated values"
+                        f"In table: {table.name} column: {column.name} "
+                        f"has duplicated values"
                     )
 
         assert not failures, f"Found duplicated data in unique columns {failures}"
 
     def test_allowed_values(self):
-
         def safe_list(unsafe_list):
             if None not in unsafe_list:
                 return sorted(unsafe_list)
 
-            return sorted(list(filter(lambda item: item is not None, unsafe_list))), None
+            return (
+                sorted(filter(lambda item: item is not None, unsafe_list)),
+                None,
+            )
 
-        query = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} GROUP BY {column_name}"
+        query = (
+            "SELECT {column_name} FROM {schema_name}.{table_name} "
+            "{row_limiter} GROUP BY {column_name}"
+        )
 
         failures = []
 
@@ -259,26 +279,33 @@ class TestSchema:
                                 schema_name=self.schema.name,
                                 table_name=table.name,
                                 column_name=column.name,
-                                row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                                row_limiter=table.get_row_limiter()
+                                if table.row_limiter
+                                else "",
                             )
                         )
                     )
                 ]
 
-                # None / NULL will mess with sorting and comparison, but we do not want to lose this info either
+                # None / NULL will mess with sorting and comparison,
+                # but we do not want to lose this info either
                 expected = safe_list(expected)
                 actual = safe_list(actual)
 
-                if not expected == actual:
+                if expected != actual:
                     failures.append(
-                        f"In table: {table.name} column: {column.name} expected values: {expected}. Actual: {actual}"
+                        f"In table: {table.name} column: {column.name} "
+                        f"expected values: {expected}. Actual: {actual}"
                     )
 
         assert not failures, f"Expected values differ from expected: {failures}"
 
     def test_min_value(self):
         # Beware. Snowflake knows better and converts column names to upper case
-        query = "SELECT min({column_name}) AS MIN_VALUE FROM {schema_name}.{table_name} {row_limiter}"
+        query = (
+            "SELECT min({column_name}) AS MIN_VALUE "
+            "FROM {schema_name}.{table_name} {row_limiter}"
+        )
 
         failures = []
 
@@ -295,20 +322,26 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ).MIN_VALUE
 
                 if actual < expected:
                     failures.append(
-                        f"In table: {table.name} column: {column.name} expected min value: {expected}. Actual: {actual}"
+                        f"In table: {table.name} column: {column.name} "
+                        f"expected min value: {expected}. Actual: {actual}"
                     )
 
         assert not failures, f"Expected min values differ from expected: {failures}"
 
     def test_max_value(self):
-        query = "SELECT max({column_name}) AS MAX_VALUE FROM {schema_name}.{table_name} {row_limiter}"
+        query = (
+            "SELECT max({column_name}) AS MAX_VALUE "
+            "FROM {schema_name}.{table_name} {row_limiter}"
+        )
 
         failures = []
 
@@ -325,14 +358,17 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ).MAX_VALUE
 
                 if actual > expected:
                     failures.append(
-                        f"In table: {table.name} column: {column.name} expected max value: {expected}. Actual: {actual}"
+                        f"In table: {table.name} column: {column.name} "
+                        f"expected max value: {expected}. Actual: {actual}"
                     )
 
         assert not failures, f"Expected max values differ from expected: {failures}"
@@ -349,18 +385,25 @@ class TestSchema:
 
                 if not hasattr(ExpectedFormatValidators, column.expected_format):
                     failures.append(
-                        f"In table: {table.name} column: {column.name} unrecognized validator {column.expected_format}."
+                        f"In table: {table.name} column: {column.name} "
+                        f"unrecognized validator {column.expected_format}."
                     )
                     continue
 
                 try:
                     result = getattr(
-                        self.db.sample(self.schema.name, table.name, column.name, table.get_row_limiter("AND")),
+                        self.db.sample(
+                            self.schema.name,
+                            table.name,
+                            column.name,
+                            table.get_row_limiter("AND"),
+                        ),
                         column.name,
                     )
                 except AttributeError as error:
                     failures.append(
-                        f"In table: {table.name} column: {column.name} couldn't test expected {column.expected_format}. "
+                        f"In table: {table.name} column: {column.name} "
+                        f"couldn't test expected {column.expected_format}. "
                         f"In sampled data we didn't find enough valid values. "
                         f"Error: {error} "
                     )
@@ -369,7 +412,8 @@ class TestSchema:
                 validator = getattr(ExpectedFormatValidators, column.expected_format)
                 if not validator(result):
                     failures.append(
-                        f"In table: {table.name} column: {column.name} expected {column.expected_format}. Actual: {result}"
+                        f"In table: {table.name} column: {column.name} "
+                        f"expected {column.expected_format}. Actual: {result}"
                     )
 
         assert not failures, f"Some columns contain unexpected format: {failures}"

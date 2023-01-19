@@ -1,12 +1,14 @@
-from db.connection import AbstractConnection
+import logging
+
 from snowflake import connector
 from snowflake.connector import DictCursor
 from snowflake.connector.pandas_tools import write_pandas
 from tabulate import tabulate
 
-import logging
+from db.connection import AbstractConnection
 
-logging.getLogger('snowflake.connector').setLevel(logging.WARNING)
+
+logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
 class SnowflakeConnection(AbstractConnection):
@@ -57,18 +59,24 @@ class SnowflakeConnection(AbstractConnection):
         )
 
     def tables(self, schema_name) -> list:
-        return [row["name"] for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()]
+        return [
+            row["name"]
+            for row in self.query(f"SHOW TABLES IN {schema_name}").fetchall()
+        ]
 
     def columns(self, schema_name, table_name) -> dict:
         query = f"DESCRIBE TABLE {schema_name}.{table_name}"
         return {col["name"]: col["type"] for col in self.query(query).fetchall()}
 
     def schema_exists(self, schema_name) -> bool:
-        return schema_name in [row["name"] for row in self.query("SHOW DATABASES").fetchall()]
+        return schema_name in [
+            row["name"] for row in self.query("SHOW DATABASES").fetchall()
+        ]
 
     def save(self, schema_name, table_name, result, mode) -> None:
 
-        # When doing write operation to different database / schema you may need new connection
+        # When doing write operation to different database / schema
+        # you may need new connection
         database = "REGRESSION_DATABASE"
 
         connection = connector.connect(
@@ -84,13 +92,22 @@ class SnowflakeConnection(AbstractConnection):
 
         overwrite = mode == "overwrite"
         df = result.fetch_pandas_all()
-        write_pandas(connection, df, table_name=table_name, database=database, schema=schema_name, auto_create_table=True, overwrite=overwrite)
+        write_pandas(
+            connection,
+            df,
+            table_name=table_name,
+            database=database,
+            schema=schema_name,
+            auto_create_table=True,
+            overwrite=overwrite,
+        )
         connection.close()
 
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND {column_name} <> '' order by rand() limit 1"
+            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
+            "{column_name} <> '' order by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
@@ -108,7 +125,7 @@ class SnowflakeConnection(AbstractConnection):
         return self.row(result)
 
     def insert(self, schema_name, table_name, values):
-        values = [values] if type(values) == tuple else values
+        values = [values] if isinstance(values, tuple) else values
 
         for row in values:
             values_string = ("%s, " * len(row)).rstrip(", ")
@@ -118,7 +135,9 @@ class SnowflakeConnection(AbstractConnection):
         self.connection.commit()
 
     def create_table(self, schema_name, table_name, columns):
-        columns_string = ", ".join([f"{column_name} {column_type}" for column_name, column_type in columns])
+        columns_string = ", ".join(
+            [f"{column_name} {column_type}" for column_name, column_type in columns]
+        )
         query = (
             f"CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} ({columns_string})"
         )
