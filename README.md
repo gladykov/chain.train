@@ -1,6 +1,6 @@
 # chain.train
 
-ETL & database testing framework for big data. With connectors for Spark, Snowflake, MySQL/MariaDB.
+ETL & database testing framework for big data, written with Python, using Pytest. With connectors for Spark, Snowflake, MySQL/MariaDB.
 
 ```
 from lib.schema_definition import SchemaDefinition
@@ -37,7 +37,7 @@ schema_definition.environment_difference("production", "TEST_TABLE_1", "COLUMN_N
 
 1. Install requirements.txt
 2. Install requirements_{connector} specific for your DB setup
-3. Copy config.toml.template to config.toml and update connection values
+3. Copy `config.toml.template` to `config.toml` and update connection values
 4. Create your schema definition
 5. Run tests: ```python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_schema.py```
 
@@ -298,9 +298,13 @@ Main assumption to follow:
 
 ## I have a big project, can you help me setup this stuff?
 
-We can talk. Drop me a message at gladykov @ most popular email domain from google
+Drop a message to my parent company Modus Create
 
 ## Code
 
 Black, Isort, Bugbear - all will kindly yell at you from Github Actions
+
+## Troubleshoot
+
+Long chain trains may cause errors: https://github.com/PyCQA/flake8-bugbear/issues/295
 
