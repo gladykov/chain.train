@@ -23,8 +23,15 @@ class Schema:
                 yield table, column
 
     def tables_columns_with_stats(self):
-        return [(table, column) for table, column in self.tables_columns() if column.gather_stats]
+        return [
+            (table, column)
+            for table, column in self.tables_columns()
+            if column.gather_stats
+        ]
 
     def tables_columns_with_expected_result(self):
-        return [(table, column) for table, column in self.tables_columns() if column.expected_results]
-
+        return [
+            (table, column)
+            for table, column in self.tables_columns()
+            if column.expected_results
+        ]

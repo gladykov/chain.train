@@ -3,7 +3,8 @@ from types import SimpleNamespace
 
 
 def parser():
-    # argparse was supposed to be nice. It is not, when used with Pytest. parse_known_args is useless
+    # argparse was supposed to be nice. It is not, when used with Pytest.
+    # parse_known_args() is useless
 
     args = ["--env", "--schema_name"]
     recognized_args = []
@@ -17,7 +18,7 @@ def parser():
 
     for recognized_arg in recognized_args:
         name, value = recognized_arg.split("=")
-        name = name.lstrip("--")
+        name = name.lstrip("-")  # Remove --
         setattr(parsed_args, name, value)
 
     return parsed_args

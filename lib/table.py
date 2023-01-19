@@ -7,7 +7,8 @@ class Table:
 
     def column_pointer(self, name):
         return next(
-            index for index, column in enumerate(self.columns) if column.name == name)
+            index for index, column in enumerate(self.columns) if column.name == name
+        )
 
     def column_names(self):
         return [column.name for column in self.columns]
@@ -18,7 +19,10 @@ class Table:
     def print_skipped_columns(self, logger):
         for column in self.columns:
             if column.skip:
-                logger.info(f"Skipping testing column {column.name} in {self.name} because of {column.skip}")
+                logger.info(
+                    f"Skipping testing column {column.name} in {self.name} because of "
+                    f"{column.skip}"
+                )
 
     def get_row_limiter(self, suffix=""):
         if not self.row_limiter:

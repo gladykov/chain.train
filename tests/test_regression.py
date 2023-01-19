@@ -3,7 +3,6 @@ from lib.stats import Stats
 
 
 class TestRegression:
-
     def setup_class(self):
         setup = my_setup()
         self.env = setup.parser.env
@@ -25,14 +24,22 @@ class TestRegression:
             for expected_result in column.expected_results_for_environment(self.env):
 
                 distinct = "DISTINCT" if expected_result.stat == Stats.DISTINCT else ""
-                count = self.db.count(self.db.query(query.format(
-                    distinct=distinct,
-                    column_name=column.name,
-                    schema_name=self.schema_name,
-                    table_name=table.name
-                )))
+                count = self.db.count(
+                    self.db.query(
+                        query.format(
+                            distinct=distinct,
+                            column_name=column.name,
+                            schema_name=self.schema_name,
+                            table_name=table.name,
+                        )
+                    )
+                )
 
-                if not count == expected_result.expected_count:
-                    failures.append(f"In table: {table.name} in column: {column.name} expected count for stat {expected_result.stat} is: {expected_result.expected_count}. Actual: {count}")
+                if count != expected_result.expected_count:
+                    failures.append(
+                        f"In table: {table.name} in column: {column.name} "
+                        f"expected count for stat {expected_result.stat} is: "
+                        f"{expected_result.expected_count}. Actual: {count}"
+                    )
 
         assert not failures, failures
