@@ -50,10 +50,7 @@ class TestSchema:
         if column.name not in self.schema_in_db[table.name].keys():
             return True
 
-        if column.skip:
-            return True
-
-        return False
+        return column.skip
 
     def test_table_names(self):
         """Check if all tables are in DB"""
@@ -253,7 +250,7 @@ class TestSchema:
                 return sorted(unsafe_list)
 
             return (
-                sorted(list(filter(lambda item: item is not None, unsafe_list))),
+                sorted(filter(lambda item: item is not None, unsafe_list)),
                 None,
             )
 
@@ -290,7 +287,7 @@ class TestSchema:
                 expected = safe_list(expected)
                 actual = safe_list(actual)
 
-                if not expected == actual:
+                if expected != actual:
                     failures.append(
                         f"In table: {table.name} column: {column.name} "
                         f"expected values: {expected}. Actual: {actual}"

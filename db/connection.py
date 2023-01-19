@@ -63,7 +63,8 @@ class AbstractConnection(ABC):
 
     @abstractmethod
     def sample(self, schema_name, table_name, column_name, row_limiter) -> object:
-        """Take one sample. Limit initial data pulled for shuffling to 1%. Take only not null and not empty strings.
+        """Take one sample. Limit initial data pulled for shuffling to x%.
+        Take only not null and not empty strings.
         Sample methods differ depending on engine used
         """
 

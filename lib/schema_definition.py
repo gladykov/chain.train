@@ -188,7 +188,7 @@ class SchemaDefinition:
         ], "Expected results are checked against distinct or total count"
 
         assert all(
-            environment in expected_count_per_environment.keys()
+            environment in expected_count_per_environment
             for environment in self.environments
         ), "Define expected result for every environment from config file"
 
