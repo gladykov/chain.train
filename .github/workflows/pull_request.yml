@@ -1,0 +1,49 @@
+---
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+name: Pull request validation
+jobs:
+  pull-request-validation:
+    name: Pull request validation
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+    - name: Sort imports with isort
+      uses: isort/isort-action@master
+      with:
+        configuration:
+    - name: Black Code Formatter
+      uses: lgeiger/black-action@master
+      with:
+        args: .
+    - name: Generate ToC for README.md
+      run: |
+        npm install -g doctoc
+        doctoc README.md --maxlevel 3 --github
+    - name: Check if there are changes to docs
+      uses: tj-actions/verify-changed-files@v10
+      id: verify-changed-files
+      with:
+        files: .(md)$
+    - name: Create PR if files changed
+      if: steps.verify-changed-files.outputs.files_changed == 'true'
+      uses: peter-evans/create-pull-request@v4
+      with:
+        commit-message: Automatic changes to ${{ github.head_ref }}
+        title: Automatic changes to ${{ github.head_ref }}
+        body: Automatic changes
+        labels: github action pr
+        branch: automatic-changes-to/${{ github.head_ref }}
+    - name: Exit if files were changed
+      if: steps.verify-changed-files.outputs.files_changed == 'true'
+      run: exit 1
+    - name: Flake8 validation
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 flake8-bugbear flake8-use-pathlib flake8-simplify flake8-pie flake8-comprehensions
+        flake8 --config=setup.cfg .
