@@ -1,11 +1,12 @@
-from lib.column import Column
-from lib.schema import Schema
-from lib.table import Table
-from lib.expected_result import ExpectedResult
-from lib.stats import Stats
-from types import SimpleNamespace
-from helpers.config import config
 from copy import deepcopy
+from types import SimpleNamespace
+
+from helpers.config import config
+from lib.column import Column
+from lib.expected_result import ExpectedResult
+from lib.schema import Schema
+from lib.stats import Stats
+from lib.table import Table
 from tests.expected_format_validators import expected_formats
 
 
@@ -178,7 +179,10 @@ class SchemaDefinition:
         """For tests, which are run after processing your workflow on fixed set of data, always expect those numbers"""
         self._prevent_adding_properties_to_non_existent_entity()
 
-        assert stat in [Stats.DISTINCT, Stats.TOTAL], "Expected results are checked against distinct or total count"
+        assert stat in [
+            Stats.DISTINCT,
+            Stats.TOTAL,
+        ], "Expected results are checked against distinct or total count"
 
         assert all(
             environment in expected_count_per_environment.keys()
@@ -201,7 +205,9 @@ class SchemaDefinition:
     def unique_columns_group(self, unique_columns_group):
         """Expect unique combinations of values in two or more columns"""
         self._prevent_adding_properties_to_non_existent_table()
-        assert not self._column_handle, "You cannot add unique columns group to a column. Only to a table."
+        assert (
+            not self._column_handle
+        ), "You cannot add unique columns group to a column. Only to a table."
 
         self._table_handle.unique_columns_group = unique_columns_group
         return self
@@ -209,7 +215,9 @@ class SchemaDefinition:
     def row_limiter(self, row_limiter):
         """For big tables add extra condition to limit amount of data pulled into test. Useful also when you run ETL periodically and want to test rows produced during latest run."""
         self._prevent_adding_properties_to_non_existent_table()
-        assert not self._column_handle, "You cannot add row_limiter to a column. Only to a table."
+        assert (
+            not self._column_handle
+        ), "You cannot add row_limiter to a column. Only to a table."
 
         self._table_handle.row_limiter = row_limiter
         return self
@@ -223,7 +231,9 @@ class SchemaDefinition:
         self._save_table()
         for environment in self.environments:
             self.schemas_per_environment.append(
-                SimpleNamespace(environment=environment, schema=deepcopy(self._schema_handle))
+                SimpleNamespace(
+                    environment=environment, schema=deepcopy(self._schema_handle)
+                )
             )
 
         self._schema_handle = None
@@ -236,7 +246,9 @@ class SchemaDefinition:
         )
 
     def schema_for_environment(self, environment):
-        return self.schemas_per_environment[self._schema_for_environment_pointer(environment)].schema
+        return self.schemas_per_environment[
+            self._schema_for_environment_pointer(environment)
+        ].schema
 
     def environment_difference(self, environment, table, columns, difference):
         """Add difference between original schema definition
@@ -257,22 +269,20 @@ class SchemaDefinition:
         columns = columns if isinstance(columns, list) else [columns]
 
         schema_pointer = self._schema_for_environment_pointer(environment)
-        table_pointer = self.schemas_per_environment[schema_pointer].schema.table_pointer(
-            table
-        )
+        table_pointer = self.schemas_per_environment[
+            schema_pointer
+        ].schema.table_pointer(table)
 
         for column in columns:
             column_pointer = (
                 self.schemas_per_environment[schema_pointer]
-                .schema
-                .tables[table_pointer]
+                .schema.tables[table_pointer]
                 .column_pointer(column)
             )
             for attribute, value in difference:
                 assert hasattr(
                     self.schemas_per_environment[schema_pointer]
-                    .schema
-                    .tables[table_pointer]
+                    .schema.tables[table_pointer]
                     .columns[column_pointer],
                     attribute,
                 ), "You tried to setup column attribute which does not exists"
@@ -280,8 +290,7 @@ class SchemaDefinition:
 
                 setattr(
                     self.schemas_per_environment[schema_pointer]
-                    .schema
-                    .tables[table_pointer]
+                    .schema.tables[table_pointer]
                     .columns[column_pointer],
                     attribute,
                     value,

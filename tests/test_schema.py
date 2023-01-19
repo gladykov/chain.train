@@ -1,9 +1,9 @@
-from helpers.setup import setup as my_setup
 from expected_format_validators import ExpectedFormatValidators
+
+from helpers.setup import setup as my_setup
 
 
 class TestSchema:
-
     def setup_class(self):
         setup = my_setup()
         self.env = setup.parser.env
@@ -20,7 +20,9 @@ class TestSchema:
         # Cache schema from DB
         self.schema_in_db = {}
         for table_in_db in self.tables_in_db:
-            self.schema_in_db[table_in_db] = self.db.columns(self.schema_name, table_in_db)
+            self.schema_in_db[table_in_db] = self.db.columns(
+                self.schema_name, table_in_db
+            )
 
         self.schema.print_skip_info(self.logger)
         self.empty_tables = self.empty_tables(self)
@@ -193,7 +195,7 @@ class TestSchema:
                             table_name=table.name,
                             column_name=column.name,
                             row_limiter=table.get_row_limiter("AND"),
-                            string_cast=self.db.string_cast
+                            string_cast=self.db.string_cast,
                         )
                     )
                 ):
@@ -222,7 +224,9 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ):
@@ -233,12 +237,14 @@ class TestSchema:
         assert not failures, f"Found duplicated data in unique columns {failures}"
 
     def test_allowed_values(self):
-
         def safe_list(unsafe_list):
             if None not in unsafe_list:
                 return sorted(unsafe_list)
 
-            return sorted(list(filter(lambda item: item is not None, unsafe_list))), None
+            return (
+                sorted(list(filter(lambda item: item is not None, unsafe_list))),
+                None,
+            )
 
         query = "SELECT {column_name} FROM {schema_name}.{table_name} {row_limiter} GROUP BY {column_name}"
 
@@ -259,7 +265,9 @@ class TestSchema:
                                 schema_name=self.schema.name,
                                 table_name=table.name,
                                 column_name=column.name,
-                                row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                                row_limiter=table.get_row_limiter()
+                                if table.row_limiter
+                                else "",
                             )
                         )
                     )
@@ -295,7 +303,9 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ).MIN_VALUE
@@ -325,7 +335,9 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter() if table.row_limiter else "",
+                            row_limiter=table.get_row_limiter()
+                            if table.row_limiter
+                            else "",
                         )
                     )
                 ).MAX_VALUE
@@ -355,7 +367,12 @@ class TestSchema:
 
                 try:
                     result = getattr(
-                        self.db.sample(self.schema.name, table.name, column.name, table.get_row_limiter("AND")),
+                        self.db.sample(
+                            self.schema.name,
+                            table.name,
+                            column.name,
+                            table.get_row_limiter("AND"),
+                        ),
                         column.name,
                     )
                 except AttributeError as error:

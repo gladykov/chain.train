@@ -1,8 +1,11 @@
-from helpers.setup import setup as my_setup
-from tests.gather_statistics import STATISTICS_TABLE_NAME
-from pandas import DataFrame
 import statistics
+
+from pandas import DataFrame
+
+from helpers.setup import setup as my_setup
 from lib.stats import Stats
+from tests.gather_statistics import STATISTICS_TABLE_NAME
+
 
 EXPECTED_DATA_POINTS = 2 + 1  # How many data points we expect before doing comparison
 DATA_POINTS_TO_LOOK_AT = 12 + 1  # How many data points in the past to look into
@@ -10,7 +13,6 @@ ACCEPTED_STD_DEV_DIFFERENCE = 3
 
 
 class TestStatistics:
-
     def setup_class(self):
         setup = my_setup()
         self.env = setup.parser.env
@@ -19,14 +21,19 @@ class TestStatistics:
         self.logger = setup.logger
         self.db = setup.db
         query = "SELECT * FROM {schema_name}.{statistics_table_name}"
-        self.statistics_data = self.db.rows(self.db.query(query.format(
-            schema_name=self.schema.statistics_schema_name,
-            statistics_table_name=STATISTICS_TABLE_NAME
-        )))
+        self.statistics_data = self.db.rows(
+            self.db.query(
+                query.format(
+                    schema_name=self.schema.statistics_schema_name,
+                    statistics_table_name=STATISTICS_TABLE_NAME,
+                )
+            )
+        )
         # Convert to DataFrame for filtering on multiple columns
         self.df = DataFrame([vars(row) for row in self.statistics_data])
-        self.df.columns = self.df.columns.str.upper()  # Thank you Snowflake for forcing UPPERCASE
-
+        self.df.columns = (
+            self.df.columns.str.upper()
+        )  # Thank you Snowflake for forcing UPPERCASE
 
     def teardown_class(self):
         self.db.close()
@@ -38,9 +45,9 @@ class TestStatistics:
                 schema_name=schema_name,
                 table_name=table_name,
                 column_name=column_name,
-                stat_type=stat_type
+                stat_type=stat_type,
             )
-        ).sort_values(by=['MEASURE_DATE'], ascending=False)[["VALUE"]]
+        ).sort_values(by=["MEASURE_DATE"], ascending=False)[["VALUE"]]
 
     @staticmethod
     def enough_data_points(df):
@@ -56,7 +63,9 @@ class TestStatistics:
 
         for table, column in self.schema.tables_columns_with_stats():
             for stat in column.gather_stats:
-                df = self.filtered_stats(self.schema_name, table.name, column.name, stat)
+                df = self.filtered_stats(
+                    self.schema_name, table.name, column.name, stat
+                )
 
                 if not self.enough_data_points(df):
                     continue
@@ -67,7 +76,9 @@ class TestStatistics:
                 expected = average - ACCEPTED_STD_DEV_DIFFERENCE * standard_deviation
 
                 if current < expected:
-                    failures.append(f"In table: {table.name} in column: {column.name} for stat {stat} expected std: {expected}. Actual: {current}")
+                    failures.append(
+                        f"In table: {table.name} in column: {column.name} for stat {stat} expected std: {expected}. Actual: {current}"
+                    )
 
     def test_stat_always_grow(self):
 
@@ -83,7 +94,9 @@ class TestStatistics:
                 if stat not in [Stats.DISTINCT, Stats.TOTAL]:
                     continue
 
-                df = self.filtered_stats(self.schema_name, table.name, column.name, stat)
+                df = self.filtered_stats(
+                    self.schema_name, table.name, column.name, stat
+                )
 
                 if not len(df.index) >= 2:
                     continue
@@ -92,7 +105,9 @@ class TestStatistics:
                 previous = past[0]
 
                 if current < previous:
-                    failures.append(f"In table: {table.name} in column: {column.name} for stat {stat} expected increase. Previous: {previous}. Actual: {current}")
+                    failures.append(
+                        f"In table: {table.name} in column: {column.name} for stat {stat} expected increase. Previous: {previous}. Actual: {current}"
+                    )
 
     def test_latest_run_is_not_zero(self):
 
@@ -102,12 +117,18 @@ class TestStatistics:
 
             for stat in column.gather_stats:
 
-                df = self.filtered_stats(self.schema_name, table.name, column.name, stat)
+                df = self.filtered_stats(
+                    self.schema_name, table.name, column.name, stat
+                )
 
                 if len(df.index) == 0:
-                    raise ValueError(f"You got 0 recorded stats for {self.schema_name} {table.name} {column.name} {stat}")
+                    raise ValueError(
+                        f"You got 0 recorded stats for {self.schema_name} {table.name} {column.name} {stat}"
+                    )
 
                 current, _ = self.current_past_values(df)
 
                 if current == 0:
-                    failures.append(f"In table: {table.name} in column: {column.name} for latest stat {stat} got 0.")
+                    failures.append(
+                        f"In table: {table.name} in column: {column.name} for latest stat {stat} got 0."
+                    )

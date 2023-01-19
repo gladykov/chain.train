@@ -1,6 +1,7 @@
-from db.connection import AbstractConnection
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
+
+from db.connection import AbstractConnection
 
 
 class SparkConnection(AbstractConnection):
@@ -41,17 +42,25 @@ class SparkConnection(AbstractConnection):
         return [table.name for table in self.connection.catalog.listTables(schema)]
 
     def schema_exists(self, schema) -> bool:
-        return any(database.name == schema for database in self.connection.catalog.listDatabases())
+        return any(
+            database.name == schema
+            for database in self.connection.catalog.listDatabases()
+        )
 
     def columns(self, schema, table) -> dict:
-        return {col.name: col.dataType for col in self.connection.catalog.listColumns(table, schema)}
+        return {
+            col.name: col.dataType
+            for col in self.connection.catalog.listColumns(table, schema)
+        }
 
     def save(self, schema, table, result, mode) -> None:
         result.write.mode(mode).format("hive").saveAsTable(f"{schema}.{table}")
 
     def insert(self, schema_name, table_name, values):
         values = [values] if type(values) == tuple else values
-        schema = self.connection.sql(f"SELECT * FROM {schema_name}.{table_name} LIMIT 1").schema
+        schema = self.connection.sql(
+            f"SELECT * FROM {schema_name}.{table_name} LIMIT 1"
+        ).schema
         df = self.connection.createDataFrame(values, schema)
         self.save(schema_name, table_name, df, "append")
 
@@ -76,10 +85,10 @@ class SparkConnection(AbstractConnection):
         return self.row(result)
 
     def create_table(self, schema, table, columns):
-        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
-        query = (
-            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        columns_string = ", ".join(
+            [f"`{column_name}` {column_type}" for column_name, column_type in columns]
         )
+        query = f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
         self.query(query)
 
     def close(self) -> None:

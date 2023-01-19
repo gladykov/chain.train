@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from types import SimpleNamespace
 
+
 class AbstractConnection(ABC):
     @abstractmethod
     def connection(self, name):
