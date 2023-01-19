@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [chain.train](#chaintrain)
+  - [Quickstart](#quickstart)
+  - [Overview](#overview)
+  - [Environments](#environments)
+  - [Creating schema](#creating-schema)
+    - [table](#table)
+    - [column](#column)
+    - [allowed\_values](#allowed%5C_values)
+    - [can\_be\_null](#can%5C_be%5C_null)
+    - [can\_be\_empty](#can%5C_be%5C_empty)
+    - [can\_be\_empty\_null](#can%5C_be%5C_empty%5C_null)
+    - [unique](#unique)
+    - [skip](#skip)
+    - [min\_value](#min%5C_value)
+    - [max\_value](#max%5C_value)
+    - [expected\_format](#expected%5C_format)
+    - [collect\_stat](#collect%5C_stat)
+    - [stat\_always\_grow](#stat%5C_always%5C_grow)
+    - [expected\_result](#expected%5C_result)
+    - [unique\_columns\_group](#unique%5C_columns%5C_group)
+    - [row\_limiter](#row%5C_limiter)
+    - [close](#close)
+    - [environment\_difference](#environment%5C_difference)
+  - [Running schema tests](#running-schema-tests)
+  - [Running statistical tests](#running-statistical-tests)
+    - [Gather stats](#gather-stats)
+    - [Test stats](#test-stats)
+  - [Running regression tests](#running-regression-tests)
+  - [Limiting amount of processed data](#limiting-amount-of-processed-data)
+  - [About connectors](#about-connectors)
+  - [Bugs and contributions](#bugs-and-contributions)
+  - [I have a big project, can you help me setup this stuff?](#i-have-a-big-project-can-you-help-me-setup-this-stuff)
+  - [Code](#code)
+  - [Troubleshoot](#troubleshoot)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # chain.train
 
 ETL & database testing framework for big data, written with Python, using Pytest. With connectors for Spark, Snowflake, MySQL/MariaDB.

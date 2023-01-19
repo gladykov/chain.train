@@ -1,9 +1,10 @@
-from db.connection import AbstractConnection
-from tabulate import tabulate
 import pandas as pd
-from sqlalchemy import create_engine
 import pymysql
 from pymysql.cursors import DictCursor
+from sqlalchemy import create_engine
+from tabulate import tabulate
+
+from db.connection import AbstractConnection
 
 
 class MariaDBConnection(AbstractConnection):
@@ -114,10 +115,10 @@ class MariaDBConnection(AbstractConnection):
         df.to_sql(table_name, con=connection, if_exists=if_exists)
 
     def create_table(self, schema, table, columns):
-        columns_string = ", ".join([f"`{column_name}` {column_type}" for column_name, column_type in columns])
-        query = (
-            f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
+        columns_string = ", ".join(
+            [f"`{column_name}` {column_type}" for column_name, column_type in columns]
         )
+        query = f"CREATE TABLE IF NOT EXISTS {schema}.{table} ({columns_string})"
         self.query(query)
 
     def close(self) -> None:
