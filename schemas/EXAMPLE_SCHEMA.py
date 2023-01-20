@@ -6,7 +6,7 @@ schema_definition = SchemaDefinition("EXAMPLE_SCHEMA")
 
 (
     schema_definition.table("TEST_TABLE_1")
-    #.row_limiter("COLUMN_NAME_2 BETWEEN 2010-05-21 AND 2010-06-21")
+    # .row_limiter("COLUMN_NAME_2 BETWEEN 2010-05-21 AND 2010-06-21")
     .column("COLUMN_NAME", "text")
     .unique()
     .collect_stat(Stats.TOTAL_IN_RANGE)
@@ -22,7 +22,8 @@ schema_definition = SchemaDefinition("EXAMPLE_SCHEMA")
 )
 
 (
-    schema_definition.table("TEST_TABLE_2").unique_columns_group(["COLUMN_NAME_2", "COLUMN_NAME_3"])
+    schema_definition.table("TEST_TABLE_2")
+    .unique_columns_group(["COLUMN_NAME_2", "COLUMN_NAME_3"])
     .column("COLUMN_NAME", "text")
     .unique()
     .can_be_null()

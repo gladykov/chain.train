@@ -234,7 +234,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter(prefix="WHERE")
+                            row_limiter=table.get_row_limiter(prefix="WHERE"),
                         )
                     )
                 ):
@@ -277,7 +277,7 @@ class TestSchema:
                                 schema_name=self.schema.name,
                                 table_name=table.name,
                                 column_name=column.name,
-                                row_limiter=table.get_row_limiter(prefix="WHERE")
+                                row_limiter=table.get_row_limiter(prefix="WHERE"),
                             )
                         )
                     )
@@ -318,7 +318,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter("WHERE")
+                            row_limiter=table.get_row_limiter("WHERE"),
                         )
                     )
                 ).MIN_VALUE
@@ -352,7 +352,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter(prefix="WHERE")
+                            row_limiter=table.get_row_limiter(prefix="WHERE"),
                         )
                     )
                 ).MAX_VALUE
@@ -424,21 +424,25 @@ class TestSchema:
             if not table.unique_columns_group:
                 continue
 
-            print(query.format(
-                    columns=", ".join(table.unique_columns_group),
-                    schema_name=self.schema.name,
-                    table_name=table.name,
-                    row_limiter=table.get_row_limiter(prefix="WHERE"),
-                ))
-
-            count_duplicates = self.db.count(self.db.query(
+            print(
                 query.format(
                     columns=", ".join(table.unique_columns_group),
                     schema_name=self.schema.name,
                     table_name=table.name,
                     row_limiter=table.get_row_limiter(prefix="WHERE"),
                 )
-            ))
+            )
+
+            count_duplicates = self.db.count(
+                self.db.query(
+                    query.format(
+                        columns=", ".join(table.unique_columns_group),
+                        schema_name=self.schema.name,
+                        table_name=table.name,
+                        row_limiter=table.get_row_limiter(prefix="WHERE"),
+                    )
+                )
+            )
 
             if count_duplicates:
                 failures.append(
@@ -447,4 +451,3 @@ class TestSchema:
                 )
 
         assert not failures, f"Columns combinations contain duplicated data: {failures}"
-
