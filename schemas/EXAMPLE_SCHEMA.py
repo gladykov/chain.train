@@ -2,11 +2,11 @@ from lib.schema_definition import SchemaDefinition
 from lib.stats import Stats
 
 
-schema_definition = SchemaDefinition("TEST_SCHEMA")
+schema_definition = SchemaDefinition("EXAMPLE_SCHEMA")
 
 (
     schema_definition.table("TEST_TABLE_1")
-    .row_limiter("COLUMN_NAME_2 BETWEEN 2010-05-21 AND 2010-06-21")
+    # .row_limiter("COLUMN_NAME_2 BETWEEN 2010-05-21 AND 2010-06-21")
     .column("COLUMN_NAME", "text")
     .unique()
     .collect_stat(Stats.TOTAL_IN_RANGE)
@@ -22,7 +22,8 @@ schema_definition = SchemaDefinition("TEST_SCHEMA")
 )
 
 (
-    schema_definition.table("TEST_TABLE_2")  # .row_limiter("column_name_3 > 200")
+    schema_definition.table("TEST_TABLE_2")
+    .unique_columns_group(["COLUMN_NAME_2", "COLUMN_NAME_3"])
     .column("COLUMN_NAME", "text")
     .unique()
     .can_be_null()
@@ -45,4 +46,3 @@ schema_definition.close()
 schema_definition.environment_difference(
     "production", "TEST_TABLE_1", "COLUMN_NAME_3", [("skip", "Bad test")]
 )
-pass

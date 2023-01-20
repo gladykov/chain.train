@@ -107,13 +107,13 @@ class TestSchema:
 
         query_null = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} {column_name} IS NOT NULL LIMIT 1"
+            "WHERE {row_limiter} {column_name} IS NOT NULL LIMIT 1"
         )
         # To safely check other data types, cast them as string.
         # This could be costly operation if there are many empty strings in column.
         query_empty = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
+            "WHERE {row_limiter} cast({column_name} as {string_cast}) <> '' LIMIT 1"
         )
 
         failures = []
@@ -129,7 +129,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter("AND"),
+                            row_limiter=table.get_row_limiter(suffix="AND"),
                         )
                     )
                 ):
@@ -144,7 +144,7 @@ class TestSchema:
                             table_name=table.name,
                             column_name=column.name,
                             string_cast=self.db.string_cast,
-                            row_limiter=table.get_row_limiter("AND"),
+                            row_limiter=table.get_row_limiter(suffix="AND"),
                         )
                     )
                 ):
@@ -158,7 +158,7 @@ class TestSchema:
     def test_contains_null(self):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} {column_name} IS NULL LIMIT 1"
+            "WHERE {row_limiter} {column_name} IS NULL LIMIT 1"
         )
 
         failures = []
@@ -174,7 +174,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter("AND"),
+                            row_limiter=table.get_row_limiter(suffix="AND"),
                         )
                     )
                 ):
@@ -187,7 +187,7 @@ class TestSchema:
     def test_contains_empty(self):
         query = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
-            "{row_limiter} cast({column_name} as {string_cast}) = '' LIMIT 1"
+            "WHERE {row_limiter} cast({column_name} as {string_cast}) = '' LIMIT 1"
         )
 
         failures = []
@@ -203,7 +203,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter("AND"),
+                            row_limiter=table.get_row_limiter(suffix="AND"),
                             string_cast=self.db.string_cast,
                         )
                     )
@@ -234,9 +234,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter()
-                            if table.row_limiter
-                            else "",
+                            row_limiter=table.get_row_limiter(prefix="WHERE"),
                         )
                     )
                 ):
@@ -279,9 +277,7 @@ class TestSchema:
                                 schema_name=self.schema.name,
                                 table_name=table.name,
                                 column_name=column.name,
-                                row_limiter=table.get_row_limiter()
-                                if table.row_limiter
-                                else "",
+                                row_limiter=table.get_row_limiter(prefix="WHERE"),
                             )
                         )
                     )
@@ -322,9 +318,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter()
-                            if table.row_limiter
-                            else "",
+                            row_limiter=table.get_row_limiter("WHERE"),
                         )
                     )
                 ).MIN_VALUE
@@ -358,9 +352,7 @@ class TestSchema:
                             schema_name=self.schema.name,
                             table_name=table.name,
                             column_name=column.name,
-                            row_limiter=table.get_row_limiter()
-                            if table.row_limiter
-                            else "",
+                            row_limiter=table.get_row_limiter(prefix="WHERE"),
                         )
                     )
                 ).MAX_VALUE
@@ -417,3 +409,36 @@ class TestSchema:
                     )
 
         assert not failures, f"Some columns contain unexpected format: {failures}"
+
+    def test_unique_columns_group(self):
+        query = (
+            "SELECT {columns}, count(*) as DUPLICATES "
+            "FROM {schema_name}.{table_name} {row_limiter} GROUP BY {columns} "
+            "HAVING DUPLICATES > 1"
+        )
+
+        failures = []
+
+        for table in self.schema.tables:
+
+            if not table.unique_columns_group:
+                continue
+
+            count_duplicates = self.db.count(
+                self.db.query(
+                    query.format(
+                        columns=", ".join(table.unique_columns_group),
+                        schema_name=self.schema.name,
+                        table_name=table.name,
+                        row_limiter=table.get_row_limiter(prefix="WHERE"),
+                    )
+                )
+            )
+
+            if count_duplicates:
+                failures.append(
+                    f"In table: {table.name} found duplicated column combinations "
+                    f"for {table.unique_columns_group}"
+                )
+
+        assert not failures, f"Columns combinations contain duplicated data: {failures}"

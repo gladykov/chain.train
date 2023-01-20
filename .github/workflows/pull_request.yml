@@ -24,7 +24,7 @@ jobs:
     - name: Generate ToC for README.md
       run: |
         npm install -g doctoc
-        doctoc README.md --maxlevel 3 --github
+        doctoc README.md --maxlevel 2 --github
     - name: Check if there are changes to docs
       uses: tj-actions/verify-changed-files@v10
       id: verify-changed-files
