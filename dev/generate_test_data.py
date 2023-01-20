@@ -1,3 +1,5 @@
+# Simple debug script to insert data into DB
+
 from helpers.setup import setup as my_setup
 
 

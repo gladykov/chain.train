@@ -24,8 +24,8 @@ class Table:
                     f"{column.skip}"
                 )
 
-    def get_row_limiter(self, suffix=""):
+    def get_row_limiter(self, prefix="", suffix=""):
         if not self.row_limiter:
-            return "WHERE"
+            return ""
 
-        return f"WHERE {self.row_limiter} {suffix}"
+        return f"{suffix} {self.row_limiter} {suffix}"
