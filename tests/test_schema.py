@@ -424,15 +424,6 @@ class TestSchema:
             if not table.unique_columns_group:
                 continue
 
-            print(
-                query.format(
-                    columns=", ".join(table.unique_columns_group),
-                    schema_name=self.schema.name,
-                    table_name=table.name,
-                    row_limiter=table.get_row_limiter(prefix="WHERE"),
-                )
-            )
-
             count_duplicates = self.db.count(
                 self.db.query(
                     query.format(
