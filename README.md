@@ -303,7 +303,7 @@ This way you can select based on periods, partitions, etc. Or you attach another
 ## About connectors
 
 Connectors have all read and write operations implemented, but you should not be tempted to reuse write functionality to drive your ETLs - they are nowhere efficient for big data operations. Just good enough to write small number of rows. 
-Where tested with MySQL, MariaDB, Spark 2.x and Snowflake with Python 3.9
+Where tested with MySQL, MariaDB, Spark 3.x and Snowflake with Python 3.9, and Spark 2.x and Python 3.6
 
 Q: Why you return custom objects instead of Pandas?
 A: Good point. I thought about it too late. Something to improve in the future.
