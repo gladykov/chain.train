@@ -20,6 +20,7 @@ class SnowflakeConnection(AbstractConnection):
         self.config = config["snowflake"]
         self.schema_name = schema_name
         self.connection = self.connection()
+        self.subset_percentage = config["sample_subset_percentage"]
 
     def connection(self):
 

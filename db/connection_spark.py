@@ -12,6 +12,7 @@ class SparkConnection(AbstractConnection):
         self.flavor = config["connector"]
         self.config = config["spark"]
         self.connection = self.connection(self.config)
+        self.subset_percentage = config["sample_subset_percentage"]
 
     def connection(self, config):
         spark_conf = SparkConf()
@@ -66,7 +67,7 @@ class SparkConnection(AbstractConnection):
 
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
-            "SELECT {column_name} FROM {schema_name}.{table_name} {row_delimiter} "
+            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter} "
             "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
             "{column_name} <> '' distribute by rand() sort by rand() limit 1"
         )
