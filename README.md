@@ -12,7 +12,7 @@
   - [Running regression tests](#running-regression-tests)
   - [Limiting amount of processed data](#limiting-amount-of-processed-data)
   - [About connectors](#about-connectors)
-  - [Bugs and contributions](#bugs-and-contributions)
+  - [Bugs and contrins](#bugs-and-contrins)
   - [I have a big project, can you help me setup this stuff?](#i-have-a-big-project-can-you-help-me-setup-this-stuff)
   - [Code](#code)
   - [Troubleshoot](#troubleshoot)
