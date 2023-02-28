@@ -329,3 +329,6 @@ Black, Isort, Bugbear - all will kindly yell at you from Github Actions
 
 Long chain trains may cause errors: https://github.com/PyCQA/flake8-bugbear/issues/295
 
+## License
+
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
