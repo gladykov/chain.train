@@ -8,7 +8,6 @@ from db.connection import AbstractConnection
 
 
 class MariaDBConnection(AbstractConnection):
-
     string_cast = "char"
 
     def __init__(self, config, schema_name):
@@ -20,7 +19,6 @@ class MariaDBConnection(AbstractConnection):
         self.connection = self.connection()
 
     def connection(self):
-
         return pymysql.connect(
             user=self.config["user"],
             password=self.config["password"],
@@ -100,7 +98,6 @@ class MariaDBConnection(AbstractConnection):
         self.connection.commit()
 
     def save(self, schema_name, table_name, result, mode) -> None:
-
         overwrite = mode == "overwrite"
 
         # Only PyMySQL worked both for MariaDB and MySQL,

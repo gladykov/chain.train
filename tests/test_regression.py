@@ -22,7 +22,6 @@ class TestRegression:
 
         for table, column in self.schema.tables_columns_with_expected_result():
             for expected_result in column.expected_results_for_environment(self.env):
-
                 distinct = "DISTINCT" if expected_result.stat == Stats.DISTINCT else ""
                 count = self.db.count(
                     self.db.query(

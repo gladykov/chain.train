@@ -61,7 +61,6 @@ class TestStatistics:
         return df.iloc[0].VALUE, list(df.iloc[1:DATA_POINTS_TO_LOOK_AT].VALUE)
 
     def test_standard_deviation(self):
-
         failures = []
 
         for table, column in self.schema.tables_columns_with_stats():
@@ -85,16 +84,13 @@ class TestStatistics:
                     )
 
     def test_stat_always_grow(self):
-
         failures = []
 
         for table, column in self.schema.tables_columns_with_stats():
-
             if not column.stat_always_grow:
                 continue
 
             for stat in column.gather_stats:
-
                 if stat not in [Stats.DISTINCT, Stats.TOTAL]:
                     continue
 
@@ -116,13 +112,10 @@ class TestStatistics:
                     )
 
     def test_latest_run_is_not_zero(self):
-
         failures = []
 
         for table, column in self.schema.tables_columns_with_stats():
-
             for stat in column.gather_stats:
-
                 df = self.filtered_stats(
                     self.schema_name, table.name, column.name, stat
                 )

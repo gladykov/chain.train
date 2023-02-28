@@ -5,7 +5,7 @@
 - [chain.train](#chaintrain)
   - [Quickstart](#quickstart)
   - [Overview](#overview)
-  - [Environments](#environments)mysql
+  - [Environments](#environments)
   - [Creating schema](#creating-schema)
   - [Running schema tests](#running-schema-tests)
   - [Running statistical tests](#running-statistical-tests)
@@ -16,6 +16,7 @@
   - [I have a big project, can you help me setup this stuff?](#i-have-a-big-project-can-you-help-me-setup-this-stuff)
   - [Code](#code)
   - [Troubleshoot](#troubleshoot)
+  - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

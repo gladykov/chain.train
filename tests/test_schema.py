@@ -79,7 +79,6 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
-
                 if self.should_skip(table, column):
                     continue
 
@@ -104,7 +103,6 @@ class TestSchema:
         assert not self.empty_tables, f"Empty tables in DB: {self.empty_tables}"
 
     def test_column_is_null_empty(self):
-
         query_null = (
             "SELECT {column_name} FROM {schema_name}.{table_name} "
             "WHERE {row_limiter} {column_name} IS NOT NULL LIMIT 1"
@@ -119,7 +117,6 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
-
                 if self.should_skip(table, column):
                     continue
 
@@ -164,7 +161,6 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
-
                 if column.null or self.should_skip(table, column):
                     continue
 
@@ -193,7 +189,6 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
-
                 if column.empty or self.should_skip(table, column):
                     continue
 
@@ -224,7 +219,6 @@ class TestSchema:
         failures = []
         for table in self.schema.tables:
             for column in table.columns:
-
                 if not column.unique or self.should_skip(table, column):
                     continue
 
@@ -264,7 +258,6 @@ class TestSchema:
 
         for table in self.schema.tables:
             for column in table.columns:
-
                 if not column.allowed_values or self.should_skip(table, column):
                     continue
 
@@ -307,7 +300,6 @@ class TestSchema:
 
         for table in self.schema.tables:
             for column in table.columns:
-
                 if not column.min_value or self.should_skip(table, column):
                     continue
 
@@ -341,7 +333,6 @@ class TestSchema:
 
         for table in self.schema.tables:
             for column in table.columns:
-
                 if not column.max_value or self.should_skip(table, column):
                     continue
 
@@ -366,12 +357,10 @@ class TestSchema:
         assert not failures, f"Expected max values differ from expected: {failures}"
 
     def test_expected_format(self):
-
         failures = []
 
         for table in self.schema.tables:
             for column in table.columns:
-
                 if not column.expected_format or self.should_skip(table, column):
                     continue
 
@@ -420,7 +409,6 @@ class TestSchema:
         failures = []
 
         for table in self.schema.tables:
-
             if not table.unique_columns_group:
                 continue
 
