@@ -313,7 +313,7 @@ A: Good point. I thought about it too late. Something to improve in the future.
 Q: I want to store secrets as env variables / fetch from secret manager
 A: Please generate `config.toml` on the fly and remove it after. If you know some nice abstract method to manage them, please let me know.
 
-## Bugs and contributions
+## Bugs and contrins
 
 Contributions are more than welcomed. Tell me about bugs and ideas. There are many use cases which I didn't thought of or didn't implement yet. Goal here is to be universal out-of-the box experience.
 Main assumption to follow:
