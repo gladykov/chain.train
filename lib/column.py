@@ -15,6 +15,7 @@ class Column:
         self.expected_results = []
 
     def expected_results_for_environment(self, env):
+        
         return [
             expected_result
             for expected_result in self.expected_results
