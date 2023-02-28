@@ -29,7 +29,9 @@ jobs:
       uses: tj-actions/verify-changed-files@v10
       id: verify-changed-files
       with:
-        files: .(md)$
+        files: |
+          .(md)$
+          .(py)$
     - name: Create PR if files changed
       if: steps.verify-changed-files.outputs.files_changed == 'true'
       uses: peter-evans/create-pull-request@v4
