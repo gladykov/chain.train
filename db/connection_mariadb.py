@@ -68,9 +68,9 @@ class MariaDBConnection(AbstractConnection):
 
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
-            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
-            "{column_name} <> '' order by rand() limit 1"
+            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter}"
+            " rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND"
+            " {column_name} <> '' order by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
