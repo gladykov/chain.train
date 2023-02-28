@@ -5,7 +5,6 @@ from db.connection import AbstractConnection
 
 
 class SparkConnection(AbstractConnection):
-
     string_cast = "string"
 
     def __init__(self, config, _):
@@ -19,7 +18,11 @@ class SparkConnection(AbstractConnection):
         for key, value in self.config.items():
             spark_conf.set(key, value)
 
-        return SparkSession.builder.enableHiveSupport().config(conf=spark_conf).getOrCreate()
+        return (
+            SparkSession.builder.enableHiveSupport()
+            .config(conf=spark_conf)
+            .getOrCreate()
+        )
 
     def query(self, query) -> object:
         return self.connection.sql(query)

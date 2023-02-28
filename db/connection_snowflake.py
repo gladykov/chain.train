@@ -12,7 +12,6 @@ logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
 class SnowflakeConnection(AbstractConnection):
-
     string_cast = "string"
 
     def __init__(self, config, schema_name):
@@ -23,7 +22,6 @@ class SnowflakeConnection(AbstractConnection):
         self.subset_percentage = config["sample_subset_percentage"]
 
     def connection(self):
-
         return connector.connect(
             user=self.config["user"],
             account=self.config["account"],
@@ -75,7 +73,6 @@ class SnowflakeConnection(AbstractConnection):
         ]
 
     def save(self, schema_name, table_name, result, mode) -> None:
-
         # When doing write operation to different database / schema
         # you may need new connection
         database = "REGRESSION_DATABASE"
