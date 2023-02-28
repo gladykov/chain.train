@@ -74,7 +74,7 @@ Framework contains row limiters and samplers - when used will limit amount of da
 
 ## Environments
 
-Are defined in `config.toml` . You can provide arbitrary number and names of the,.
+Are defined in `config.toml` . You can provide arbitrary number and names of them.
 
 ## Creating schema
 
@@ -247,7 +247,7 @@ This will validate table names, column names and types, null and empty values, a
 
 ### Gather stats
 
-First you need to gather some statistical data about your tables, but running few times (define how much in `test_statistics.py`):
+First you need to gather some statistical data about your tables few times (define how much in `test_statistics.py`):
 
 `python -m tests.gather_statistics --schema_name=EXAMPLE_SCHEMA --env=qa`
 
@@ -260,23 +260,24 @@ Q: Why stats are in separate schema with single table?
 A: To keep it as separate as possible, not to pollute production schemas with test data, and not to introduce differences, depending where you will run it.
 
 Q: Why not single schema for all stats?
-A: With many schemas in play, it will be easier to migrate some of them. Also - performance. We always query for whole statistics table. It is very small, so it is OK.
+A: With many schemas in play, it will be easier to migrate some of them. Also - performance. We always query for whole statistics table. As long as it is small small, it is OK.
 
 ### Test stats
 
 `python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_statistics.py`
 
-This will execute set of tests comparing counts. Implemented tests should be treated more like an example:
+This will execute set of tests comparing counts. Existing implemented tests should be treated more like an example:
 
 * test_standard_deviation
 * test_stat_always_grow
 * test_latest_run_is_not_zero
 
-If there are not enough defined data points for comparison, it will also pass.
+If there are not enough defined data points for comparison, test will silently pass.
 
 ## Running regression tests
 
-If you have ability to run your ETL pipeline on fixed set of data, you should always expect same counts in output data.
+Regression tests are designed to test tables created by running ETL on fixed set of data.
+This way you can expect always same output data.
 This can be achieved by creating snapshot of existing data or limiting input data based on some condition, ex. date.
 
 Define expected counts for column:
@@ -289,7 +290,7 @@ and then run:
 
 `python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_regression.py`
 
-Tests expect output tables to live in `{SCHEMA_NAME}_regression`
+Regression tests expect output tables to live in `{SCHEMA_NAME}_regression`
 
 ## Limiting amount of processed data
 
@@ -299,12 +300,12 @@ For `expected_format` test by fetching only x percentage of table, before orderi
 Because of implementation details, `sample()` methods are different for different connectors.
 
 For all other tests: by passing `row_limiter` to table. This is just another `WHERE` clause which is appended to queries.
-This way you can select based on periods, partitions, etc. Or you attach another percentage limiter, by passing `rand() <= {subset_percentage}`
+This way you can select based on periods, partitions, etc. Or you can attach another percentage limiter, by passing `rand() <= {subset_percentage}`
 
 ## About connectors
 
 Connectors have all read and write operations implemented, but you should not be tempted to reuse write functionality to drive your ETLs - they are nowhere efficient for big data operations. Just good enough to write small number of rows. 
-Where tested with MySQL, MariaDB, Spark 3.x and Snowflake with Python 3.9, and Spark 2.x and Python 3.6
+Tested with MySQL, MariaDB, Spark 3.x and Snowflake with Python 3.9, and Spark 2.x and Python 3.6
 
 Q: Why you return custom objects instead of Pandas?
 A: Good point. I thought about it too late. Something to improve in the future.
@@ -314,9 +315,9 @@ A: Please generate `config.toml` on the fly and remove it after. If you know som
 
 ## Bugs and contributions
 
-Please tell me about bugs, ideas and please make contributions. There are many use cases which I didn't thought of or didn't implement yet. Goal here is to be universal out-of-the box experience.
+Contributions are more than welcomed. Tell me about bugs and ideas. There are many use cases which I didn't thought of or didn't implement yet. Goal here is to be universal out-of-the box experience.
 Main assumption to follow:
-- do as many checks as possible when defining schema - running tests takes time, so we want to catch anything before executing actual queries
+- do as many checks as possible when defining schema - running tests takes time, so we want to catch anything before executing actual queries.
 
 ## I have a big project, can you help me setup this stuff?
 
@@ -333,4 +334,3 @@ Long chain trains may cause errors: https://github.com/PyCQA/flake8-bugbear/issu
 ## License
 
 [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
-
