@@ -5,7 +5,7 @@
 - [chain.train](#chaintrain)
   - [Quickstart](#quickstart)
   - [Overview](#overview)
-  - [Environments](#environments)
+  - [Environments](#environments)mysql
   - [Creating schema](#creating-schema)
   - [Running schema tests](#running-schema-tests)
   - [Running statistical tests](#running-statistical-tests)
@@ -27,7 +27,7 @@ ETL & database testing framework for big data, written with Python, using Pytest
 from lib.schema_definition import SchemaDefinition
 from lib.stats import Stats
 
-schema_definition = SchemaDefinition("TEST_SCHEMA")
+schema_definition = SchemaDefinition("EXAMPLE_SCHEMA")
 
 (
     schema_definition.table("TEST_TABLE_1")
@@ -60,7 +60,7 @@ schema_definition.environment_difference("production", "TEST_TABLE_1", "COLUMN_N
 2. Install requirements_{connector} specific for your DB setup
 3. Copy `config.toml.template` to `config.toml` and update connection values
 4. Create your schema definition
-5. Run tests: ```python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_schema.py```
+5. Run tests: ```python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_schema.py```
 
 ## Overview
 
@@ -240,7 +240,7 @@ Add difference between original schema definition
 
 This will validate table names, column names and types, null and empty values, allowed values, expected formats, etc.. For full list of tests see `tests/test_schema.py`
 
-```python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_schema.py```
+```python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_schema.py```
 
 ## Running statistical tests
 
@@ -248,7 +248,7 @@ This will validate table names, column names and types, null and empty values, a
 
 First you need to gather some statistical data about your tables, but running few times (define how much in `test_statistics.py`):
 
-`python -m tests.gather_statistics --schema_name=TEST_SCHEMA --env=qa`
+`python -m tests.gather_statistics --schema_name=EXAMPLE_SCHEMA --env=qa`
 
 This will execute all counts defined for column, and write results to {SCHEMA_NAME}_statistics.statistics table
 
@@ -263,7 +263,7 @@ A: With many schemas in play, it will be easier to migrate some of them. Also - 
 
 ### Test stats
 
-`python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_statistics.py`
+`python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_statistics.py`
 
 This will execute set of tests comparing counts. Implemented tests should be treated more like an example:
 
@@ -286,7 +286,7 @@ Define expected counts for column:
 
 and then run:
 
-`python -m pytest -s --schema_name=TEST_SCHEMA --env=qa tests/test_regression.py`
+`python -m pytest -s --schema_name=EXAMPLE_SCHEMA --env=qa tests/test_regression.py`
 
 Tests expect output tables to live in `{SCHEMA_NAME}_regression`
 
