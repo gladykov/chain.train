@@ -5,7 +5,6 @@ from db.connection import AbstractConnection
 
 
 class SparkConnection(AbstractConnection):
-
     string_cast = "string"
 
     def __init__(self, config, _):
@@ -19,7 +18,11 @@ class SparkConnection(AbstractConnection):
         for key, value in self.config.items():
             spark_conf.set(key, value)
 
-        return SparkSession.builder.enableHiveSupport().config(conf=spark_conf).getOrCreate()
+        return (
+            SparkSession.builder.enableHiveSupport()
+            .config(conf=spark_conf)
+            .getOrCreate()
+        )
 
     def query(self, query) -> object:
         return self.connection.sql(query)
@@ -67,9 +70,9 @@ class SparkConnection(AbstractConnection):
 
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
-            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
-            "{column_name} <> '' distribute by rand() sort by rand() limit 1"
+            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter}"
+            " rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
+            " {column_name} <> '' distribute by rand() sort by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage

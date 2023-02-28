@@ -8,7 +8,6 @@ from db.connection import AbstractConnection
 
 
 class MariaDBConnection(AbstractConnection):
-
     string_cast = "char"
 
     def __init__(self, config, schema_name):
@@ -20,7 +19,6 @@ class MariaDBConnection(AbstractConnection):
         self.connection = self.connection()
 
     def connection(self):
-
         return pymysql.connect(
             user=self.config["user"],
             password=self.config["password"],
@@ -70,9 +68,9 @@ class MariaDBConnection(AbstractConnection):
 
     def sample(self, schema_name, table_name, column_name, row_delimiter):
         query = (
-            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter} "
-            "rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND "
-            "{column_name} <> '' order by rand() limit 1"
+            "SELECT {column_name} FROM {schema_name}.{table_name} WHERE {row_delimiter}"
+            " rand() <= {subset_percentage} AND {column_name} IS NOT NULL AND"
+            " {column_name} <> '' order by rand() limit 1"
         )
 
         subset_percentage = (1 / 100) * self.subset_percentage
@@ -100,7 +98,6 @@ class MariaDBConnection(AbstractConnection):
         self.connection.commit()
 
     def save(self, schema_name, table_name, result, mode) -> None:
-
         overwrite = mode == "overwrite"
 
         # Only PyMySQL worked both for MariaDB and MySQL,
