@@ -3,10 +3,10 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-name: Pull request validation
+name: Code formatting and validation
 jobs:
-  pull-request-validation:
-    name: Pull request validation
+  code-formatting-validation:
+    name: Code formatting and validation
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -17,7 +17,7 @@ jobs:
       uses: isort/isort-action@master
       with:
         configuration:
-    - name: Black Code Formatter
+    - name: Format code with Black
       uses: lgeiger/black-action@master
       with:
         args: .
@@ -25,14 +25,14 @@ jobs:
       run: |
         npm install -g doctoc
         doctoc README.md --maxlevel 2 --github
-    - name: Check if there are changes to docs
+    - name: Verify if formatters changed files
       uses: tj-actions/verify-changed-files@v10
       id: verify-changed-files
       with:
         files: |
           .(md)$
           .(py)$
-    - name: Create PR if files changed
+    - name: Create PR if files were changed
       if: steps.verify-changed-files.outputs.files_changed == 'true'
       uses: peter-evans/create-pull-request@v4
       with:
@@ -44,7 +44,7 @@ jobs:
     - name: Exit if files were changed
       if: steps.verify-changed-files.outputs.files_changed == 'true'
       run: exit 1
-    - name: Flake8 validation
+    - name: Validate with Flake8
       run: |
         python -m pip install --upgrade pip
         pip install flake8 flake8-bugbear flake8-use-pathlib flake8-simplify flake8-pie flake8-comprehensions
