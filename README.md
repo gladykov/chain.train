@@ -321,7 +321,7 @@ Main assumption to follow:
 
 ## I have a big project, can you help me setup this stuff?
 
-Drop a message to my parent company Modus Create
+Yes, for a fee
 
 ## Code
 
